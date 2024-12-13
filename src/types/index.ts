@@ -18,4 +18,5 @@ export type Category =
   | 'Entertainment'
   | 'Health'
   | 'City'
-  | 'Nature';
+  | 'Nature'
+    'Irregular Verbs';

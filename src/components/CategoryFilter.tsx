@@ -18,6 +18,7 @@ export const categories: Category[] = [
   'Health',
   'City',
   'Nature',
+  'Irregular Verbs',
 ];
 
 export const CategoryFilter: React.FC<CategoryFilterProps> = ({
