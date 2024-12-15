@@ -11,6 +11,7 @@ export const categories: Category[] = [
   'Literature',
   'Work',
   'Studies',
+  'Short Stories',
   'Home',
   'Travel',
   'Food',
@@ -19,6 +20,7 @@ export const categories: Category[] = [
   'City',
   'Nature',
   'Irregular Verbs',
+
 ];
 
 export const CategoryFilter: React.FC<CategoryFilterProps> = ({

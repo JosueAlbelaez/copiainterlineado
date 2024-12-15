@@ -12,6 +12,7 @@ export type Category =
   | 'Literature'
   | 'Work'
   | 'Studies'
+    'Short Stories'
   | 'Home'
   | 'Travel'
   | 'Food'
