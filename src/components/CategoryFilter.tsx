@@ -7,6 +7,7 @@ interface CategoryFilterProps {
 }
 
 export const categories: Category[] = [
+  'Conversations',
   'Technology',
   'Literature',
   'Work',

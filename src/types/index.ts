@@ -8,6 +8,7 @@ export interface Reading {
 }
 
 export type Category =
+   'Conversations'
   | 'Technology'
   | 'Literature'
   | 'Work'
