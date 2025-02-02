@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-// Crear instancia para el backend principal
+// Crear instancia para el backend principal (lecturas)
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL
+  baseURL: 'https://interlineado-backend-fluent-phrases.vercel.app'
 });
 
-// Crear instancia para el servidor de autenticación
+// Crear instancia para el servidor de autenticación local
 const AuthAPI = axios.create({
   baseURL: '/api/auth'  // Esto usará el proxy configurado en vite.config.ts
 });
@@ -36,7 +36,10 @@ export const registerUser = async (userData: {
   return response.data;
 };
 
-export const getProtectedData = () => API.get('/protected-route');
+export const getReadings = async () => {
+  const response = await API.get('/readings');
+  return response.data;
+};
 
 export const verifyToken = async () => {
   const response = await AuthAPI.get('/me');
