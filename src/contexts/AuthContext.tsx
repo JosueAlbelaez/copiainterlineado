@@ -19,18 +19,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      // Verificar token y obtener datos del usuario
       fetchUserData(token);
     }
   }, []);
 
   const fetchUserData = async (token: string) => {
     try {
-      const response = await fetch('http://localhost:5001/api/auth/me', {
+      const response = await fetch(`${API_URL}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -50,7 +50,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await fetch('http://localhost:5001/api/auth/signin', {
+      console.log('Intentando iniciar sesión con:', email);
+      const response = await fetch(`${API_URL}/api/auth/signin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,22 +60,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (!response.ok) {
-        throw new Error('Login failed');
+        console.error('Error de respuesta:', response.status);
+        const errorData = await response.json();
+        console.error('Detalles del error:', errorData);
+        throw new Error(errorData.error || 'Error al iniciar sesión');
       }
 
       const data = await response.json();
+      console.log('Respuesta del servidor:', data);
+      
       localStorage.setItem('token', data.token);
       setUser(data.user);
       setIsAuthenticated(true);
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Error de login:', error);
       throw error;
     }
   };
 
   const register = async (userData: { email: string; password: string; firstName: string; lastName: string }) => {
     try {
-      const response = await fetch('http://localhost:5001/api/auth/signup', {
+      const response = await fetch(`${API_URL}/api/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,7 +89,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (!response.ok) {
-        throw new Error('Registration failed');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error en el registro');
       }
 
       const data = await response.json();
@@ -91,7 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(data.user);
       setIsAuthenticated(true);
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('Error de registro:', error);
       throw error;
     }
   };
