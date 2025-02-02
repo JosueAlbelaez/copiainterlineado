@@ -11,12 +11,32 @@ export default {
         primary: '#00BF63',
         secondary: '#FF3131',
         background: {
-          DEFAULT: 'hsl(var(--background))',
-          dark: '#1a1a1a'
+          DEFAULT: 'hsl(0 0% 100%)',
+          dark: 'hsl(240 10% 3.9%)'
         },
         foreground: {
-          DEFAULT: 'hsl(var(--foreground))',
-          dark: '#ffffff'
+          DEFAULT: 'hsl(240 10% 3.9%)',
+          dark: 'hsl(0 0% 98%)'
+        },
+        card: {
+          DEFAULT: 'hsl(0 0% 100%)',
+          dark: 'hsl(240 10% 3.9%)'
+        },
+        'card-foreground': {
+          DEFAULT: 'hsl(240 10% 3.9%)',
+          dark: 'hsl(0 0% 98%)'
+        },
+        border: {
+          DEFAULT: 'hsl(240 5.9% 90%)',
+          dark: 'hsl(240 3.7% 15.9%)'
+        },
+        muted: {
+          DEFAULT: 'hsl(240 4.8% 95.9%)',
+          dark: 'hsl(240 3.7% 15.9%)'
+        },
+        accent: {
+          DEFAULT: 'hsl(240 4.8% 95.9%)',
+          dark: 'hsl(240 3.7% 15.9%)'
         }
       },
       fontSize: {
