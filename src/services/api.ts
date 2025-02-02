@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Crear instancia para el backend principal (lecturas)
 const API = axios.create({
-  baseURL: 'https://interlineado-backend-fluent-phrases.vercel.app'
+  baseURL: 'https://interlineado-backend-fluent-phrases.vercel.app/api'
 });
 
 // Crear instancia para el servidor de autenticación local
@@ -37,8 +37,15 @@ export const registerUser = async (userData: {
 };
 
 export const getReadings = async () => {
-  const response = await API.get('/readings');
-  return response.data;
+  console.log('📚 Obteniendo lecturas...');
+  try {
+    const response = await API.get('/readings');
+    console.log('✅ Lecturas obtenidas:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error al obtener lecturas:', error);
+    throw error;
+  }
 };
 
 export const verifyToken = async () => {
