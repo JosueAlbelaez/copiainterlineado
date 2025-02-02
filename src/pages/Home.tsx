@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { CategoryFilter } from '../components/CategoryFilter';
 import { ReadingCard } from '../components/ReadingCard';
 import { useReadingStore } from '../store/useReadingStore';
-import { Category } from '../types';
 import { FaLinkedin, FaInstagram, FaTiktok } from 'react-icons/fa';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import logo from '../img/logo.png';
@@ -53,7 +52,6 @@ export const Home: React.FC = () => {
 
   const isDarkMode = useThemeStore();
 
-  
   console.log("🏠 Renderizando Home.tsx...");
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
@@ -96,7 +94,6 @@ export const Home: React.FC = () => {
         />
       )}
 
-     
       <footer className={`w-full text-gray-300 mt-8 ${isDarkMode ? 'bg-gray-900' : 'bg-blue-700'}`}>
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -209,7 +206,6 @@ export const Home: React.FC = () => {
           </div>
         </div>
       </footer>
-      
     </div>
   );
 };
