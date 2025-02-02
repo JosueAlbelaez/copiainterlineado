@@ -1,21 +1,37 @@
 import React from 'react';
 import { Reading } from '../types';
-import { Book } from 'lucide-react';
+import { Book, Lock } from 'lucide-react';
 
 interface ReadingCardProps {
   reading: Reading;
   onClick: () => void;
+  isLocked: boolean;
 }
 
-export const ReadingCard: React.FC<ReadingCardProps> = ({ reading, onClick }) => {
+export const ReadingCard: React.FC<ReadingCardProps> = ({ reading, onClick, isLocked }) => {
   const hasImage = reading.imageUrl && reading.imageUrl.trim() !== '';
+
+  const handleClick = () => {
+    if (!isLocked) {
+      onClick();
+    }
+  };
 
   return (
     <div
-      onClick={onClick}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 cursor-pointer
-                 transform transition-transform duration-200 hover:scale-105"
+      onClick={handleClick}
+      className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 
+                 transform transition-transform duration-200 relative
+                 ${isLocked 
+                    ? 'opacity-50 cursor-not-allowed' 
+                    : 'cursor-pointer hover:scale-105'}`}
     >
+      {isLocked && (
+        <div className="absolute top-2 right-2 bg-white dark:bg-gray-900 p-1 rounded-full">
+          <Lock className="w-5 h-5 text-yellow-500" />
+        </div>
+      )}
+      
       <div className="flex items-center space-x-4">
         {hasImage ? (
           <img
@@ -38,12 +54,18 @@ export const ReadingCard: React.FC<ReadingCardProps> = ({ reading, onClick }) =>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             {reading.title}
           </h3>
-          <span className="inline-block px-3 py-1 mt-2 text-sm font-medium text-[#FF3131] 
-                         bg-red-100 dark:bg-red-900 dark:text-red-100 rounded-full">
+          <span className="inline-block px-3 py-1 mt-2 text-sm font-medium text-[#00BF63] 
+                         bg-green-100 dark:bg-green-900 dark:text-green-100 rounded-full">
             {reading.category}
           </span>
         </div>
       </div>
+      
+      {isLocked && (
+        <div className="mt-4 text-sm text-yellow-600 dark:text-yellow-400">
+          Actualiza a premium para acceder a este artículo
+        </div>
+      )}
     </div>
   );
 };

@@ -1,40 +1,79 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Navbar } from './components/Navbar';
-import { Home } from './pages/Home';
-import { ReadingPage } from './pages/ReadingPage';
-import { useThemeStore } from './store/useThemeStore';
-import { useReadingStore } from './store/useReadingStore';
-import axios from 'axios';
+import { useState } from "react";
+import { Routes, Route } from "react-router-dom";
+import { useAuth } from "./contexts/AuthContext";
+import { UserCircle2, LogIn } from "lucide-react";
+import { SignInForm } from "./components/auth/SignInForm";
+import { SignUpForm } from "./components/auth/SignUpForm";
+import { Home } from "./pages/Home";
+import { Header } from "./components/Header";
 
 function App() {
-  const { isDarkMode } = useThemeStore();
-  const { setReadings } = useReadingStore();
+  const { isAuthenticated } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState<"signin" | "signup" | null>(null);
 
-  useEffect(() => {
-    const fetchReadings = async () => {
-      try {
-        const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/readings`);
-        setReadings(data);
-      } catch (error) {
-        console.error('Error fetching readings:', error);
-        setReadings([]);
-      }
-    };
+  const handleAuthSuccess = () => {
+    setShowAuthModal(null);
+  };
 
-    fetchReadings();
-  }, [setReadings]);
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-center min-h-screen py-12">
+            <div className="text-center space-y-8 max-w-md">
+              <UserCircle2 className="w-20 h-20 mx-auto text-green-600" />
+              <div>
+                <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                  Bienvenido a Fluent Phrases
+                </h1>
+                <p className="text-xl text-gray-600">
+                  Mejora tu inglés con frases prácticas y contextualizadas
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  onClick={() => setShowAuthModal("signin")}
+                  className="inline-flex items-center px-6 py-3 bg-green-600 text-white text-lg font-medium rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  <LogIn className="w-5 h-5 mr-2" />
+                  Iniciar sesión
+                </button>
+                <button
+                  onClick={() => setShowAuthModal("signup")}
+                  className="inline-flex items-center px-6 py-3 border-2 border-green-600 text-green-600 text-lg font-medium rounded-lg hover:bg-green-50 transition-colors"
+                >
+                  Registrarse gratis
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {showAuthModal === "signin" && (
+          <SignInForm 
+            onAuthSuccess={handleAuthSuccess}
+            onSwitchToSignUp={() => setShowAuthModal("signup")}
+          />
+        )}
+        {showAuthModal === "signup" && (
+          <SignUpForm 
+            onAuthSuccess={handleAuthSuccess}
+            onSwitchToSignIn={() => setShowAuthModal("signin")}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
-    <div className={isDarkMode ? 'dark' : ''}>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-        <Router>
-          <Routes>
-            <Route path="/" element={<><Navbar /><Home /></>} />
-            <Route path="/reading/:id" element={<ReadingPage />} />
-          </Routes>
-        </Router>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <main>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="*" element={<Home />} />
+        </Routes>
+      </main>
     </div>
   );
 }

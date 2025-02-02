@@ -1,0 +1,216 @@
+import express, { Express, Request, Response, NextFunction } from 'express';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import { z } from 'zod';
+import { User } from './src/lib/models/User';
+import { Phrase } from './src/lib/models/Phrase';
+import { generateToken, verifyToken } from './src/lib/utils/jwt';
+import { startOfDay } from 'date-fns';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+// 1. Extender tipos de Express
+declare global {
+  namespace Express {
+    interface Request {
+      user?: mongoose.Document & InstanceType<typeof User>;
+    }
+  }
+}
+
+// 2. Esquemas de validación con Zod
+const SignUpSchema = z.object({
+  firstName: z.string().min(2),
+  lastName: z.string().min(2),
+  email: z.string().email(),
+  password: z.string().min(8)
+});
+
+const SignInSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8)
+});
+
+// 3. Configuración inicial
+const app: Express = express();
+const PORT = process.env.PORT || 5001;
+const FREE_CATEGORIES = ['Greeting and Introducing', 'Health and Wellness'];
+
+// 4. Conexión a MongoDB
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI!);
+    console.log('✅ Connected to MongoDB');
+  } catch (error) {
+    console.error('❌ MongoDB connection error:', error);
+    process.exit(1);
+  }
+};
+
+// 5. Middlewares
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
+app.use(express.json());
+
+// 6. Async handler con tipos seguros
+const asyncHandler = <T = void>(
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<T>
+) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+};
+
+// 7. Middleware de autenticación corregido
+const authenticateToken: express.RequestHandler = async (req, res, next): Promise<void> => {
+  try {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader?.startsWith('Bearer ')) {
+      res.status(401).json({ error: 'Authorization token required' });
+      return;
+    }
+
+    const token = authHeader.split(' ')[1];
+    const decoded = verifyToken(token);
+
+    if (!decoded || typeof decoded !== 'object' || !('userId' in decoded)) {
+      res.status(403).json({ error: 'Invalid token' });
+      return;
+    }
+
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+// 10. Rutas de autenticación
+app.post('/api/auth/signup', asyncHandler(async (req: Request, res: Response) => {
+  const validation = SignUpSchema.safeParse(req.body);
+  if (!validation.success) {
+    return res.status(400).json({ error: validation.error.errors });
+  }
+
+  const { firstName, lastName, email, password } = validation.data;
+
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return res.status(409).json({ error: 'Email already registered' });
+  }
+
+  const user = new User({ firstName, lastName, email, password });
+  await user.save();
+
+  const token = generateToken({ userId: user._id });
+  
+  res.status(201).json({
+    token,
+    user: {
+      id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role
+    }
+  });
+}));
+
+app.post('/api/auth/signin', asyncHandler(async (req: Request, res: Response) => {
+  const validation = SignInSchema.safeParse(req.body);
+  if (!validation.success) {
+    return res.status(400).json({ error: validation.error.errors });
+  }
+
+  const { email, password } = validation.data;
+  console.log('Buscando usuario:', email);
+
+  const user = await User.findOne({ email }).select('+password');
+  if (!user || !(await user.comparePassword(password))) {
+    console.log('Usuario no encontrado:', email); 
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+  console.log('Login exitoso. Generando token...'); 
+  const token = generateToken({ userId: user._id });
+  
+  res.json({
+    token,
+    user: {
+      id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role
+    }
+  });
+}));
+
+// 9. Rutas protegidas
+app.get('/api/auth/me', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
+  res.json({
+    id: req.user!._id,
+    firstName: req.user!.firstName,
+    lastName: req.user!.lastName,
+    email: req.user!.email,
+    role: req.user!.role
+  });
+}));
+
+app.get('/api/phrases', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
+  const { language, category } = req.query;
+  const user = req.user!;
+
+  if (user.role === 'free') {
+    const today = startOfDay(new Date());
+    const lastReset = startOfDay(user.lastPhrasesReset);
+
+    if (today > lastReset) {
+      user.dailyPhrasesCount = 0;
+      user.lastPhrasesReset = new Date();
+      await user.save();
+    }
+  }
+
+  const query: any = { 
+    ...(language && { language }),
+    ...(category && { category }),
+    ...(user.role === 'free' && { category: { $in: FREE_CATEGORIES } })
+  };
+
+  const phrases = await Phrase.find(query);
+  
+  res.json({
+    phrases,
+    userInfo: {
+      role: user.role,
+      dailyPhrasesCount: user.dailyPhrasesCount
+    }
+  });
+}));
+
+// 10. Manejo de errores mejorado
+app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error('🔥 Error:', error.stack);
+  res.status(500).json({ 
+    error: 'Internal server error',
+    ...(process.env.NODE_ENV === 'development' && { details: error.message })
+  });
+});
+
+// 11. Iniciar servidor
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+
+  });
+});
