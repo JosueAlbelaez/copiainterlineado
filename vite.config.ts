@@ -2,24 +2,28 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
       "@components": path.resolve(__dirname, "src/components"),
-      "@hooks": path.resolve(__dirname, "src/hooks"),  // Alias extra opcional
-      "@utils": path.resolve(__dirname, "src/utils")   // Alias extra opcional
+      "@hooks": path.resolve(__dirname, "src/hooks"),
+      "@utils": path.resolve(__dirname, "src/utils")
     },
   },
   server: {
+    port: 8080,
     proxy: {
-      "/api": {
-        target: "http://localhost:5001", // Dirección de tu backend
+      "/api/auth": {
+        target: "http://localhost:5001",
         changeOrigin: true,
         secure: false,
-        ws: true,
       },
+      "/api": {
+        target: "https://interlineado-backend-fluent-phrases.vercel.app",
+        changeOrigin: true,
+        secure: false,
+      }
     },
   },
   optimizeDeps: {
