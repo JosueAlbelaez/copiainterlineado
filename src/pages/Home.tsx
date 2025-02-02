@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CategoryFilter } from '../components/CategoryFilter';
 import { ReadingCard } from '../components/ReadingCard';
@@ -15,13 +15,20 @@ const currentYear = new Date().getFullYear();
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
-  const { readings, setSelectedReading } = useReadingStore();
+  const { readings, setSelectedReading, fetchReadings } = useReadingStore();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const { isAuthenticated, userRole, dailyCount } = usePhrases('en', selectedCategory || undefined);
   
   const isPremium = userRole === 'premium' || userRole === 'admin';
   const DAILY_LIMIT = 5;
   const FREE_CATEGORIES = ['Conversations', 'Technology'];
+
+  useEffect(() => {
+    console.log('🏠 Cargando lecturas...');
+    fetchReadings().catch(error => {
+      console.error('Error al cargar lecturas:', error);
+    });
+  }, [fetchReadings]);
 
   const handleCategorySelect = (category: string | null) => {
     if (!isPremium && category && !FREE_CATEGORIES.includes(category)) {
