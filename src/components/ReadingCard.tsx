@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Reading } from '../types';
 import { Book, Lock } from 'lucide-react';
 
@@ -9,11 +10,13 @@ interface ReadingCardProps {
 }
 
 export const ReadingCard: React.FC<ReadingCardProps> = ({ reading, onClick, isLocked }) => {
+  const navigate = useNavigate();
   const hasImage = reading.imageUrl && reading.imageUrl.trim() !== '';
 
   const handleClick = () => {
     if (!isLocked) {
       onClick();
+      navigate(`/reading/${reading._id}`);
     }
   };
 

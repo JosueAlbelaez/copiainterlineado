@@ -10,6 +10,14 @@ export default {
       colors: {
         primary: '#00BF63',
         secondary: '#FF3131',
+        background: {
+          DEFAULT: 'hsl(var(--background))',
+          dark: '#1a1a1a'
+        },
+        foreground: {
+          DEFAULT: 'hsl(var(--foreground))',
+          dark: '#ffffff'
+        }
       },
       fontSize: {
         'xs': '0.75rem',
