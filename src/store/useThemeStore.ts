@@ -13,12 +13,29 @@ export const useThemeStore = create<ThemeState & ThemeActions>()(
   persist(
     (set) => ({
       isDarkMode: false,
-      toggleTheme: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
+      toggleTheme: () => 
+        set((state) => {
+          const newDarkMode = !state.isDarkMode;
+          // Actualizar la clase dark en el documento
+          if (newDarkMode) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+          return { isDarkMode: newDarkMode };
+        }),
     }),
     {
       name: 'theme-storage',
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ isDarkMode: state.isDarkMode }),
+      onRehydrateStorage: () => (state) => {
+        // Asegurar que la clase dark se aplique al cargar la página
+        if (state?.isDarkMode) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      },
     }
   )
 );
