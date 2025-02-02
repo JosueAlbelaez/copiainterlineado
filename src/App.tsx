@@ -5,7 +5,7 @@ import { UserCircle2, LogIn } from "lucide-react";
 import { SignInForm } from "./components/auth/SignInForm";
 import { SignUpForm } from "./components/auth/SignUpForm";
 import { Home } from "./pages/Home";
-import { Header } from "./components/Header";
+import { Navbar } from "./components/Navbar";
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -67,8 +67,8 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main>
+      <Navbar />
+      <main className="pt-20">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="*" element={<Home />} />
