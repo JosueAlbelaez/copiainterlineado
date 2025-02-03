@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { X } from 'lucide-react';
+import { ResetPasswordForm } from './ResetPasswordForm';
 
 interface SignInFormProps {
   onAuthSuccess: () => void;
@@ -11,6 +12,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ onAuthSuccess, onSwitchT
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showResetPassword, setShowResetPassword] = useState(false);
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,6 +24,10 @@ export const SignInForm: React.FC<SignInFormProps> = ({ onAuthSuccess, onSwitchT
       setError('Credenciales inválidas');
     }
   };
+
+  if (showResetPassword) {
+    return <ResetPasswordForm onClose={() => setShowResetPassword(false)} />;
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -80,7 +86,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({ onAuthSuccess, onSwitchT
           </button>
         </form>
 
-        <div className="mt-4 text-center">
+        <div className="mt-4 text-center space-y-2">
           <p className="text-sm text-gray-600 dark:text-gray-400">
             ¿No tienes una cuenta?{' '}
             <button
@@ -90,6 +96,12 @@ export const SignInForm: React.FC<SignInFormProps> = ({ onAuthSuccess, onSwitchT
               Regístrate
             </button>
           </p>
+          <button
+            onClick={() => setShowResetPassword(true)}
+            className="text-sm text-green-600 hover:text-green-700 font-medium"
+          >
+            ¿Olvidaste tu contraseña? Recuperar contraseña
+          </button>
         </div>
       </div>
     </div>
