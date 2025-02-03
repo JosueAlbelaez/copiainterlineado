@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { User } from './src/lib/models/User';
 import { Phrase } from './src/lib/models/Phrase';
 import { generateToken, verifyToken } from './src/lib/utils/jwt';
+import { sendPasswordResetEmail } from './src/lib/utils/email';
 import { startOfDay } from 'date-fns';
 import dotenv from 'dotenv';
 
