@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// Crear instancia para el backend principal (lecturas)
+// Crear instancia para el backend principal
 const API = axios.create({
   baseURL: '/api'  // Esto usará el proxy configurado en vite.config.ts
 });
@@ -32,7 +32,7 @@ export const registerUser = async (userData: {
 export const getReadings = async () => {
   console.log('📚 Obteniendo lecturas...');
   try {
-    const response = await API.get('/readings');
+    const response = await API.post('/readings');
     console.log('✅ Lecturas obtenidas:', response.data);
     return response.data;
   } catch (error) {
@@ -43,5 +43,10 @@ export const getReadings = async () => {
 
 export const verifyToken = async () => {
   const response = await API.get('/auth/me');
+  return response.data;
+};
+
+export const forgotPassword = async (email: string) => {
+  const response = await API.post('/auth/forgot-password', { email });
   return response.data;
 };
