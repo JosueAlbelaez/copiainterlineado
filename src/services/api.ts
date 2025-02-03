@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create instance for the backend principal
 const API = axios.create({
-  baseURL: '/api'  // This will use the proxy configured in vite.config.ts
+  baseURL: import.meta.env.VITE_API_URL || '/api'  // Usa la URL de producción o el proxy local como fallback
 });
 
 // Configure interceptor
