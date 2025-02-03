@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-// Crear instancia para el backend principal
+// Create instance for the backend principal
 const API = axios.create({
-  baseURL: '/api'  // Esto usará el proxy configurado en vite.config.ts
+  baseURL: '/api'  // This will use the proxy configured in vite.config.ts
 });
 
-// Configurar interceptor
+// Configure interceptor
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -32,7 +32,7 @@ export const registerUser = async (userData: {
 export const getReadings = async () => {
   console.log('📚 Obteniendo lecturas...');
   try {
-    const response = await API.post('/readings');
+    const response = await API.get('/readings');
     console.log('✅ Lecturas obtenidas:', response.data);
     return response.data;
   } catch (error) {
