@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Crear instancia para el backend principal (lecturas)
 const API = axios.create({
-  baseURL: 'https://interlineado-backend-fluent-phrases.vercel.app/api'
+  baseURL: 'http://localhost:5001/api'  // Cambiado de 3000 a 5001 para coincidir con el servidor
 });
 
 // Crear instancia para el servidor de autenticación local
