@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { ToastContainer } from '@/hooks/use-toast';
 
 interface ResetPasswordFormProps {
   onClose: () => void;
@@ -36,7 +37,9 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onClose })
         variant: "default",
       });
       
-      onClose();
+      setTimeout(() => {
+        onClose();
+      }, 2000); // Espera 2 segundos antes de cerrar el modal
     } catch (err) {
       toast({
         title: "Error",
@@ -49,43 +52,46 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onClose })
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6 relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-        >
-          <X className="w-6 h-6" />
-        </button>
-
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-          Recuperar Contraseña
-        </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              required
-            />
-          </div>
-
+    <>
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6 relative">
           <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+            onClick={onClose}
+            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
           >
-            {isLoading ? "Enviando..." : "Enviar correo de recuperación"}
+            <X className="w-6 h-6" />
           </button>
-        </form>
+
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            Recuperar Contraseña
+          </h2>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+            >
+              {isLoading ? "Enviando..." : "Enviar correo de recuperación"}
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
+      <ToastContainer />
+    </>
   );
 };
