@@ -10,13 +10,17 @@ export default defineConfig({
   },
   server: {
     port: 8080,
-    proxy: process.env.NODE_ENV === 'development' ? {
-      '/api': {
+    proxy: {
+      '/api/auth': {
         target: 'http://localhost:5001',
         changeOrigin: true,
-        secure: false,
-        ws: true
+        rewrite: (path) => path.replace(/^\/api/, '')
+      },
+      '/api': {
+        target: import.meta.env.VITE_API_URL,
+        changeOrigin: true,
+        secure: false
       }
-    } : undefined
+    }
   }
 });

@@ -1,16 +1,16 @@
 import axios from 'axios';
 
-// Create instance for the main API (readings)
-const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api'
+// Instancia para la API de lecturas (deployed backend)
+export const API = axios.create({
+  baseURL: import.meta.env.VITE_API_URL
 });
 
-// Create instance for authentication
-const AUTH_API = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_URL || '/api'
+// Instancia para autenticación (local backend)
+export const AUTH_API = axios.create({
+  baseURL: import.meta.env.VITE_BACKEND_URL
 });
 
-// Configure interceptors for both instances
+// Configurar interceptores para ambas instancias
 [API, AUTH_API].forEach(instance => {
   instance.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
@@ -21,7 +21,7 @@ const AUTH_API = axios.create({
   });
 });
 
-// Auth endpoints
+// Auth endpoints usando AUTH_API
 export const loginUser = async (credentials: { email: string; password: string }) => {
   const response = await AUTH_API.post('/auth/signin', credentials);
   return response.data;
@@ -47,9 +47,14 @@ export const forgotPassword = async (email: string) => {
   return response.data;
 };
 
-// Reading endpoints
+export const resetPassword = async (token: string, password: string) => {
+  const response = await AUTH_API.post('/auth/reset-password', { token, password });
+  return response.data;
+};
+
+// Reading endpoints usando API
 export const getReadings = async () => {
-  console.log('📚 Obteniendo lecturas...');
+  console.log('📚 Obteniendo lecturas desde:', import.meta.env.VITE_API_URL);
   try {
     const response = await API.get('/readings');
     console.log('✅ Lecturas obtenidas:', response.data);

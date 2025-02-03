@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { resetPassword } from '../services/api';
 
 interface ResetPasswordPageProps {
   token?: string;
@@ -34,24 +35,11 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = () => {
     }
 
     try {
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al restablecer la contraseña');
-      }
-
+      await resetPassword(token!, password);
       setSuccess(true);
       setTimeout(() => {
         navigate('/');
-      }, 3000);
+      }, 5000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al procesar la solicitud');
     } finally {
