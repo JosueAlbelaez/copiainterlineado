@@ -19,16 +19,15 @@ function App() {
     setShowAuthModal(null);
   };
 
-  // Check if we're on the reset password route
-  const isResetPasswordRoute = location.pathname.startsWith('/reset-password');
-  
-  // If we're on the reset password route, show the reset password page
-  if (isResetPasswordRoute) {
-    const token = new URLSearchParams(location.search).get('token');
+  // Extraer el token del query parameter
+  const token = new URLSearchParams(location.search).get('token');
+
+  // Si estamos en la ruta de reset-password y hay un token, mostrar la página de reset
+  if (location.pathname === '/reset-password' && token) {
     return <ResetPasswordPage token={token} />;
   }
 
-  if (!isAuthenticated && !isResetPasswordRoute) {
+  if (!isAuthenticated && location.pathname !== '/reset-password') {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -96,7 +95,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/reading/:id" element={<ReadingPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage token={null} />} />
+          <Route path="/reset-password" element={<ResetPasswordPage token={token} />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
