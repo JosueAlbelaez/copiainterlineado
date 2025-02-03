@@ -7,6 +7,7 @@ import { SignUpForm } from "./components/auth/SignUpForm";
 import { Home } from "./pages/Home";
 import { Navbar } from "./components/Navbar";
 import { ReadingPage } from "./pages/ReadingPage";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -15,6 +16,11 @@ function App() {
   const handleAuthSuccess = () => {
     setShowAuthModal(null);
   };
+
+  // Ruta especial para reseteo de contraseña
+  if (window.location.pathname.startsWith('/reset-password')) {
+    return <ResetPasswordPage />;
+  }
 
   if (!isAuthenticated) {
     return (
@@ -81,6 +87,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/reading/:id" element={<ReadingPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </main>
