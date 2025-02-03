@@ -10,7 +10,7 @@ import { ReadingPage } from "./pages/ReadingPage";
 
 function App() {
   const { isAuthenticated } = useAuth();
-  const [showAuthModal, setShowAuthModal] = useState<"signin" | "signup" | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState<"signin" | "signup" | "reset" | null>(null);
 
   const handleAuthSuccess = () => {
     setShowAuthModal(null);
@@ -44,6 +44,14 @@ function App() {
                   className="inline-flex items-center px-6 py-3 border-2 border-green-600 text-green-600 text-lg font-medium rounded-lg hover:bg-green-50 transition-colors dark:hover:bg-green-900"
                 >
                   Registrarse gratis
+                </button>
+              </div>
+              <div>
+                <button
+                  onClick={() => setShowAuthModal("reset")}
+                  className="text-green-600 hover:text-green-700 text-sm font-medium"
+                >
+                  ¿Olvidaste tu contraseña? Recuperar contraseña
                 </button>
               </div>
             </div>
