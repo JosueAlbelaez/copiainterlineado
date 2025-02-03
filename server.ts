@@ -95,6 +95,29 @@ const authenticateToken: express.RequestHandler = async (req, res, next): Promis
   }
 };
 
+// Ruta para solicitar recuperación de contraseña
+app.post('/api/auth/forgot-password', asyncHandler(async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(404).json({ error: 'No existe una cuenta con este correo electrónico' });
+  }
+
+  const resetToken = generateToken({ userId: user._id }, '30m');
+  user.resetPasswordToken = resetToken;
+  user.resetPasswordExpires = new Date(Date.now() + 30 * 60 * 1000); // 30 minutos
+  await user.save();
+
+  try {
+    await sendPasswordResetEmail(email, resetToken);
+    res.json({ message: 'Se ha enviado un correo con las instrucciones para restablecer tu contraseña' });
+  } catch (error) {
+    console.error('Error al enviar el correo:', error);
+    res.status(500).json({ error: 'Error al enviar el correo de recuperación' });
+  }
+}));
+
 // 10. Rutas de autenticación
 app.post('/api/auth/signup', asyncHandler(async (req: Request, res: Response) => {
   const validation = SignUpSchema.safeParse(req.body);

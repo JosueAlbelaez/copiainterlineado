@@ -5,7 +5,7 @@ dotenv.config();
 
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
-const FRONTEND_URL = process.env.FRONTEND_URL;
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 if (!EMAIL_USER || !EMAIL_PASSWORD) {
   console.warn('Advertencia: Credenciales de correo no configuradas');
@@ -64,7 +64,7 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
   }
 
   const resetUrl = `${FRONTEND_URL}/reset-password?token=${token}`;
-
+  
   const mailOptions = {
     from: EMAIL_USER,
     to: email,
@@ -79,7 +79,7 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
             Restablecer contraseña
           </a>
         </div>
-        <p style="color: #718096; font-size: 14px;">Este enlace expirará en 1 hora.</p>
+        <p style="color: #718096; font-size: 14px;">Este enlace expirará en 30 minutos.</p>
         <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
         <p style="color: #718096; font-size: 12px;">Si no solicitaste restablecer tu contraseña, puedes ignorar este correo.</p>
       </div>
