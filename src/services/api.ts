@@ -2,27 +2,20 @@ import axios from 'axios';
 
 // Crear instancia para el backend principal (lecturas)
 const API = axios.create({
-  baseURL: 'http://localhost:5001/api'  // Cambiado de 3000 a 5001 para coincidir con el servidor
+  baseURL: '/api'  // Esto usará el proxy configurado en vite.config.ts
 });
 
-// Crear instancia para el servidor de autenticación local
-const AuthAPI = axios.create({
-  baseURL: '/api/auth'  // Esto usará el proxy configurado en vite.config.ts
-});
-
-// Configurar interceptor para ambas instancias
-[API, AuthAPI].forEach(instance => {
-  instance.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  });
+// Configurar interceptor
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 export const loginUser = async (credentials: { email: string; password: string }) => {
-  const response = await AuthAPI.post('/signin', credentials);
+  const response = await API.post('/auth/signin', credentials);
   return response.data;
 };
 
@@ -32,7 +25,7 @@ export const registerUser = async (userData: {
   email: string;
   password: string;
 }) => {
-  const response = await AuthAPI.post('/signup', userData);
+  const response = await API.post('/auth/signup', userData);
   return response.data;
 };
 
@@ -49,6 +42,6 @@ export const getReadings = async () => {
 };
 
 export const verifyToken = async () => {
-  const response = await AuthAPI.get('/me');
+  const response = await API.get('/auth/me');
   return response.data;
 };
