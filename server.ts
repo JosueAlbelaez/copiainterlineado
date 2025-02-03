@@ -235,6 +235,36 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
 connectDB().then(() => {
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-
   });
 });
+
+// Ruta para restablecer la contraseña
+app.post('/api/auth/reset-password', asyncHandler(async (req: Request, res: Response) => {
+  const { token, password } = req.body;
+
+  if (!token || !password) {
+    return res.status(400).json({ error: 'Token y contraseña son requeridos' });
+  }
+
+  const decoded = verifyToken(token);
+  if (!decoded || !decoded.userId) {
+    return res.status(400).json({ error: 'Token inválido o expirado' });
+  }
+
+  const user = await User.findOne({
+    _id: decoded.userId,
+    resetPasswordToken: token,
+    resetPasswordExpires: { $gt: Date.now() }
+  });
+
+  if (!user) {
+    return res.status(400).json({ error: 'Token inválido o expirado' });
+  }
+
+  user.password = password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+  await user.save();
+
+  res.json({ message: 'Contraseña actualizada exitosamente' });
+}));
