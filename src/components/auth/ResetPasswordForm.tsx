@@ -31,8 +31,9 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onClose })
       }
 
       toast({
-        title: "Correo enviado",
-        description: "Se ha enviado un correo con las instrucciones para restablecer tu contraseña",
+        title: "¡Correo enviado!",
+        description: "Se ha enviado un correo con las instrucciones para restablecer tu contraseña. Por favor, revisa tu bandeja de entrada.",
+        variant: "default",
       });
       
       onClose();
@@ -71,7 +72,7 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onClose })
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               required
             />
           </div>
