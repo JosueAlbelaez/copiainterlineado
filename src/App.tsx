@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import { UserCircle2, LogIn } from "lucide-react";
 import { SignInForm } from "./components/auth/SignInForm";
@@ -8,21 +8,27 @@ import { Home } from "./pages/Home";
 import { Navbar } from "./components/Navbar";
 import { ReadingPage } from "./pages/ReadingPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
+import { ResetPasswordForm } from "./components/auth/ResetPasswordForm";
 
 function App() {
   const { isAuthenticated } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState<"signin" | "signup" | "reset" | null>(null);
+  const location = useLocation();
 
   const handleAuthSuccess = () => {
     setShowAuthModal(null);
   };
 
-  // Ruta especial para reseteo de contraseña
-  if (window.location.pathname.startsWith('/reset-password')) {
-    return <ResetPasswordPage />;
+  // Check if we're on the reset password route
+  const isResetPasswordRoute = location.pathname.startsWith('/reset-password');
+  
+  // If we're on the reset password route, show the reset password page
+  if (isResetPasswordRoute) {
+    const token = new URLSearchParams(location.search).get('token');
+    return <ResetPasswordPage token={token} />;
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && !isResetPasswordRoute) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -76,6 +82,9 @@ function App() {
             onSwitchToSignIn={() => setShowAuthModal("signin")}
           />
         )}
+        {showAuthModal === "reset" && (
+          <ResetPasswordForm onClose={() => setShowAuthModal(null)} />
+        )}
       </div>
     );
   }
@@ -87,8 +96,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/reading/:id" element={<ReadingPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="*" element={<Home />} />
+          <Route path="/reset-password" element={<ResetPasswordPage token={null} />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </div>
