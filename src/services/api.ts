@@ -2,12 +2,12 @@ import axios from 'axios';
 
 // Instancia para la API de lecturas (deployed backend)
 export const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL
+  baseURL: '/api'
 });
 
 // Instancia para autenticación (local backend)
 export const AUTH_API = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_URL
+  baseURL: '/api/auth'
 });
 
 // Configurar interceptores para ambas instancias
@@ -19,11 +19,23 @@ export const AUTH_API = axios.create({
     }
     return config;
   });
+
+  // Agregar interceptor para logs
+  instance.interceptors.response.use(
+    response => {
+      console.log(`✅ ${response.config.method?.toUpperCase()} ${response.config.url} success:`, response.data);
+      return response;
+    },
+    error => {
+      console.error(`❌ ${error.config?.method?.toUpperCase()} ${error.config?.url} error:`, error.response?.data || error.message);
+      return Promise.reject(error);
+    }
+  );
 });
 
-// Auth endpoints usando AUTH_API
+// Auth endpoints
 export const loginUser = async (credentials: { email: string; password: string }) => {
-  const response = await AUTH_API.post('/auth/signin', credentials);
+  const response = await AUTH_API.post('/signin', credentials);
   return response.data;
 };
 
@@ -33,34 +45,27 @@ export const registerUser = async (userData: {
   email: string;
   password: string;
 }) => {
-  const response = await AUTH_API.post('/auth/signup', userData);
+  const response = await AUTH_API.post('/signup', userData);
   return response.data;
 };
 
 export const verifyToken = async () => {
-  const response = await AUTH_API.get('/auth/me');
+  const response = await AUTH_API.get('/me');
   return response.data;
 };
 
 export const forgotPassword = async (email: string) => {
-  const response = await AUTH_API.post('/auth/forgot-password', { email });
+  const response = await AUTH_API.post('/forgot-password', { email });
   return response.data;
 };
 
 export const resetPassword = async (token: string, password: string) => {
-  const response = await AUTH_API.post('/auth/reset-password', { token, password });
+  const response = await AUTH_API.post('/reset-password', { token, password });
   return response.data;
 };
 
-// Reading endpoints usando API
+// Reading endpoints
 export const getReadings = async () => {
-  console.log('📚 Obteniendo lecturas desde:', import.meta.env.VITE_API_URL);
-  try {
-    const response = await API.get('/readings');
-    console.log('✅ Lecturas obtenidas:', response.data);
-    return response.data;
-  } catch (error) {
-    console.error('❌ Error al obtener lecturas:', error);
-    throw error;
-  }
+  const response = await API.get('/readings');
+  return response.data;
 };

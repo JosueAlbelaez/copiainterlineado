@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
         '/api/auth': {
           target: 'http://localhost:5001',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, '')
+          secure: false
         },
         '/api': {
           target: env.VITE_API_URL,
