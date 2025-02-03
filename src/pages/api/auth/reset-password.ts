@@ -11,6 +11,11 @@ export default async function handler(req: any, res: any) {
     await connectDB();
 
     const { token, password } = req.body;
+    
+    if (!token || !password) {
+      return res.status(400).json({ error: 'Token y contraseña son requeridos' });
+    }
+
     const decoded = verifyToken(token);
 
     if (!decoded || !decoded.userId) {

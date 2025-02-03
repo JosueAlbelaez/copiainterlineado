@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import { UserCircle2, LogIn } from "lucide-react";
@@ -19,15 +19,12 @@ function App() {
     setShowAuthModal(null);
   };
 
-  // Extraer el token del query parameter
-  const token = new URLSearchParams(location.search).get('token');
-
-  // Si estamos en la ruta de reset-password y hay un token, mostrar la página de reset
-  if (location.pathname === '/reset-password' && token) {
-    return <ResetPasswordPage token={token} />;
+  // Si estamos en la ruta de reset-password, mostrar la página de reset independientemente del estado de autenticación
+  if (location.pathname === '/reset-password') {
+    return <ResetPasswordPage />;
   }
 
-  if (!isAuthenticated && location.pathname !== '/reset-password') {
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -95,7 +92,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/reading/:id" element={<ReadingPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage token={token} />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

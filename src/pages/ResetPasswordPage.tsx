@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
-export const ResetPasswordPage = () => {
+interface ResetPasswordPageProps {
+  token?: string;
+}
+
+export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
@@ -86,7 +90,7 @@ export const ResetPasswordPage = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 minLength={8}
               />
             </div>
@@ -101,7 +105,7 @@ export const ResetPasswordPage = () => {
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 minLength={8}
               />
             </div>
