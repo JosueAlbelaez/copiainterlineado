@@ -1,21 +1,19 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface ResetPasswordFormProps {
   onClose: () => void;
 }
 
 export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onClose }) => {
+  const { toast } = useToast();
   const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
-    setMessage('');
 
     try {
       const response = await fetch('/api/auth/forgot-password', {
@@ -32,9 +30,18 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onClose })
         throw new Error(data.error || 'Error al enviar el correo de recuperación');
       }
 
-      setMessage('Se ha enviado un correo con las instrucciones para restablecer tu contraseña');
+      toast({
+        title: "Correo enviado",
+        description: "Se ha enviado un correo con las instrucciones para restablecer tu contraseña",
+      });
+      
+      onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al procesar la solicitud');
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : 'Error al procesar la solicitud',
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -53,18 +60,6 @@ export const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onClose })
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
           Recuperar Contraseña
         </h2>
-
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
-
-        {message && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-            {message}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
