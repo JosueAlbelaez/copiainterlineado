@@ -122,7 +122,7 @@ export function PricingPlans() {
         ))}
       </div>
       {preferenceId && (
-        <div className="fixed bottom-4 right-4">
+        <div className="fixed bottom-4 right-4 scale-125 transform">
           <Wallet initialization={{ preferenceId }} />
         </div>
       )}
