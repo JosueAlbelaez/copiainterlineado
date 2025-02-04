@@ -11,8 +11,8 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-6xl w-full p-6 relative">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full p-6 relative">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
@@ -20,9 +20,14 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
           <X className="w-6 h-6" />
         </button>
 
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
-          Mejora tu experiencia con nuestros planes Premium
-        </h2>
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+            Mejora tu experiencia
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300">
+            Elige el plan que mejor se adapte a tus necesidades
+          </p>
+        </div>
 
         <PricingPlans />
       </div>

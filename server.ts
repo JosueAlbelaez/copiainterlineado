@@ -8,6 +8,7 @@ import { generateToken, verifyToken } from './src/lib/utils/jwt';
 import { sendPasswordResetEmail } from './src/lib/utils/email';
 import { startOfDay } from 'date-fns';
 import dotenv from 'dotenv';
+import { MercadoPagoConfig, Preference } from 'mercadopago';
 
 dotenv.config();
 
@@ -238,33 +239,54 @@ connectDB().then(() => {
   });
 });
 
-// Ruta para restablecer la contraseña
-app.post('/api/auth/reset-password', asyncHandler(async (req: Request, res: Response) => {
-  const { token, password } = req.body;
+// Webhook para recibir notificaciones de pago
+app.post('/api/webhook', asyncHandler(async (req: Request, res: Response) => {
+  const { type, data } = req.body;
 
-  if (!token || !password) {
-    return res.status(400).json({ error: 'Token y contraseña son requeridos' });
+  if (type === 'payment') {
+    const paymentId = data.id;
+    // Aquí implementaremos la lógica para actualizar el estado de la suscripción
+    // basado en el estado del pago
   }
 
-  const decoded = verifyToken(token);
-  if (!decoded || !decoded.userId) {
-    return res.status(400).json({ error: 'Token inválido o expirado' });
+  res.sendStatus(200);
+}));
+
+// Ruta para crear preferencia de pago
+const client = new MercadoPagoConfig({ 
+  accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN! 
+});
+
+app.post('/api/create-preference', asyncHandler(async (req: Request, res: Response) => {
+  const { planId, title, price, interval } = req.body;
+  
+  try {
+    const preference = await new Preference(client).create({
+      items: [
+        {
+          id: planId,
+          title: title,
+          quantity: 1,
+          unit_price: price,
+          currency_id: "USD"
+        }
+      ],
+      back_urls: {
+        success: `${process.env.FRONTEND_URL}/payment/success`,
+        failure: `${process.env.FRONTEND_URL}/payment/failure`,
+        pending: `${process.env.FRONTEND_URL}/payment/pending`
+      },
+      auto_return: "approved",
+      notification_url: `${process.env.BACKEND_URL}/api/webhook`,
+      metadata: {
+        planId,
+        interval
+      }
+    });
+
+    res.json({ preferenceId: preference.id });
+  } catch (error) {
+    console.error('Error al crear preferencia:', error);
+    res.status(500).json({ error: 'Error al crear preferencia de pago' });
   }
-
-  const user = await User.findOne({
-    _id: decoded.userId,
-    resetPasswordToken: token,
-    resetPasswordExpires: { $gt: Date.now() }
-  });
-
-  if (!user) {
-    return res.status(400).json({ error: 'Token inválido o expirado' });
-  }
-
-  user.password = password;
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpires = undefined;
-  await user.save();
-
-  res.json({ message: 'Contraseña actualizada exitosamente' });
 }));

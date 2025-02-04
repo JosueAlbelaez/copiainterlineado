@@ -1,11 +1,13 @@
 import { useState } from "react";
+import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 import { PricingCard } from "./PricingCard";
+import { toast } from "../../hooks/use-toast";
 
 const plans = [
   {
     id: "monthly",
     title: "Plan Mensual",
-    price: 6,
+    price: 9.99,
     interval: "mes",
     description: "Acceso completo por un mes",
     features: [
@@ -18,7 +20,7 @@ const plans = [
   {
     id: "biannual",
     title: "Plan Semestral",
-    price: 30,
+    price: 49.99,
     interval: "6 meses",
     description: "Ahorra con 6 meses de acceso",
     features: [
@@ -31,7 +33,7 @@ const plans = [
   {
     id: "annual",
     title: "Plan Anual",
-    price: 50,
+    price: 89.99,
     interval: "año",
     description: "La mejor relación calidad-precio",
     features: [
@@ -43,22 +45,50 @@ const plans = [
   }
 ];
 
+// Inicializar Mercado Pago con la public key
+initMercadoPago('TEST-XXXXX-XXXXX-XXXXX-XXXXX');
+
 export function PricingPlans() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [preferenceId, setPreferenceId] = useState<string | null>(null);
 
   const handleSubscribe = async (planId: string) => {
     try {
       setLoadingPlan(planId);
+      const plan = plans.find(p => p.id === planId);
       
-      // Aquí iría la lógica de integración con la pasarela de pago
-      // Por ahora solo simulamos un delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Redirigir a la pasarela de pago
-      console.log(`Redirigiendo al plan: ${planId}`);
+      if (!plan) {
+        throw new Error("Plan no encontrado");
+      }
+
+      // Aquí haremos la llamada al backend para crear la preferencia
+      const response = await fetch('/api/create-preference', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          planId,
+          title: plan.title,
+          price: plan.price,
+          interval: plan.interval
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al crear la preferencia de pago');
+      }
+
+      const data = await response.json();
+      setPreferenceId(data.preferenceId);
       
     } catch (error) {
-      console.error("Error al procesar la suscripción:", error);
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo procesar la solicitud. Por favor, intenta nuevamente.",
+        variant: "destructive",
+      });
     } finally {
       setLoadingPlan(null);
     }
@@ -78,6 +108,11 @@ export function PricingPlans() {
           isLoading={loadingPlan === plan.id}
         />
       ))}
+      {preferenceId && (
+        <div className="fixed bottom-4 right-4">
+          <Wallet initialization={{ preferenceId }} />
+        </div>
+      )}
     </div>
   );
 }
