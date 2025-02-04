@@ -62,7 +62,8 @@ export function PricingPlans() {
         throw new Error("Plan no encontrado");
       }
 
-      // Aquí haremos la llamada al backend para crear la preferencia
+      console.log('Creando preferencia para el plan:', plan);
+
       const response = await fetch('/api/create-preference', {
         method: 'POST',
         headers: {
@@ -77,10 +78,13 @@ export function PricingPlans() {
       });
 
       if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Error response:', errorData);
         throw new Error('Error al crear la preferencia de pago');
       }
 
       const data = await response.json();
+      console.log('Preferencia creada:', data);
       setPreferenceId(data.preferenceId);
 
     } catch (error) {
