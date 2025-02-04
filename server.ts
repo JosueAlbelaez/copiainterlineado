@@ -262,25 +262,27 @@ app.post('/api/create-preference', asyncHandler(async (req: Request, res: Respon
   
   try {
     const preference = await new Preference(client).create({
-      items: [
-        {
-          id: planId,
-          title: title,
-          quantity: 1,
-          unit_price: price,
-          currency_id: "USD"
+      body: {
+        items: [
+          {
+            id: planId,
+            title: title,
+            quantity: 1,
+            unit_price: price,
+            currency_id: "USD"
+          }
+        ],
+        back_urls: {
+          success: `${process.env.FRONTEND_URL}/payment/success`,
+          failure: `${process.env.FRONTEND_URL}/payment/failure`,
+          pending: `${process.env.FRONTEND_URL}/payment/pending`
+        },
+        auto_return: "approved",
+        notification_url: `${process.env.BACKEND_URL}/api/webhook`,
+        metadata: {
+          planId,
+          interval
         }
-      ],
-      back_urls: {
-        success: `${process.env.FRONTEND_URL}/payment/success`,
-        failure: `${process.env.FRONTEND_URL}/payment/failure`,
-        pending: `${process.env.FRONTEND_URL}/payment/pending`
-      },
-      auto_return: "approved",
-      notification_url: `${process.env.BACKEND_URL}/api/webhook`,
-      metadata: {
-        planId,
-        interval
       }
     });
 
