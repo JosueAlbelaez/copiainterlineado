@@ -252,11 +252,12 @@ app.post('/api/webhook', asyncHandler(async (req: Request, res: Response) => {
   res.sendStatus(200);
 }));
 
-// Ruta para crear preferencia de pago
+// Configuración de Mercado Pago con el token de acceso desde variables de entorno
 const client = new MercadoPagoConfig({ 
-  accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN! 
+  accessToken: process.env.MP_ACCESS_TOKEN! 
 });
 
+// Ruta para crear preferencia de pago
 app.post('/api/create-preference', asyncHandler(async (req: Request, res: Response) => {
   const { planId, title, price, interval } = req.body;
   
@@ -292,3 +293,4 @@ app.post('/api/create-preference', asyncHandler(async (req: Request, res: Respon
     res.status(500).json({ error: 'Error al crear preferencia de pago' });
   }
 }));
+

@@ -45,8 +45,8 @@ const plans = [
   }
 ];
 
-// Inicializar Mercado Pago con la public key
-initMercadoPago('TEST-XXXXX-XXXXX-XXXXX-XXXXX');
+// Inicializar Mercado Pago con la public key desde variables de entorno
+initMercadoPago('TEST-3c7d96f2-f320-41b7-b724-05de43fd40ac');
 
 export function PricingPlans() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
