@@ -69,3 +69,11 @@ export const getReadings = async () => {
   const response = await API.get('/api/readings');
   return response.data;
 };
+
+// Phrases endpoints
+export const getPhrases = async (language: string, category?: string) => {
+  const response = await API.get('/api/phrases', {
+    params: { language, category }
+  });
+  return response.data;
+};

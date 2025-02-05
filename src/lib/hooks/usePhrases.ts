@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useToast } from '../../hooks/use-toast';
-import { API, AUTH_API } from '../../services/api';
+import { API } from '../../services/api';
 
 interface Phrase {
   _id: string;
@@ -46,7 +46,7 @@ export function usePhrases(language: string, category?: string): UsePhraseReturn
         return;
       }
 
-      const authResponse = await AUTH_API.get('/me');
+      const authResponse = await API.get('/api/auth/me');
       setIsAuthenticated(true);
       setUserRole(authResponse.data.role);
 
