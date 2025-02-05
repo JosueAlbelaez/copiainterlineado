@@ -262,7 +262,14 @@ const client = new MercadoPagoConfig({
 app.post('/api/create-preference', asyncHandler(async (req: Request, res: Response) => {
   const { planId, title, price, interval } = req.body;
   
+  if (!planId || !title || !price) {
+    console.error('Datos de plan incompletos:', { planId, title, price });
+    return res.status(400).json({ error: 'Datos de plan incompletos' });
+  }
+  
   try {
+    console.log('Creando preferencia con datos:', { planId, title, price, interval });
+    
     const preference = await new Preference(client).create({
       body: {
         items: [
@@ -270,7 +277,7 @@ app.post('/api/create-preference', asyncHandler(async (req: Request, res: Respon
             id: planId,
             title: title,
             quantity: 1,
-            unit_price: price,
+            unit_price: Number(price),
             currency_id: "USD"
           }
         ],
@@ -288,9 +295,13 @@ app.post('/api/create-preference', asyncHandler(async (req: Request, res: Respon
       }
     });
 
+    console.log('Preferencia creada exitosamente:', preference.id);
     res.json({ preferenceId: preference.id });
   } catch (error) {
-    console.error('Error al crear preferencia:', error);
-    res.status(500).json({ error: 'Error al crear preferencia de pago' });
+    console.error('Error detallado al crear preferencia:', error);
+    res.status(500).json({ 
+      error: 'Error al crear preferencia de pago',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 }));

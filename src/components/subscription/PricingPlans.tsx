@@ -45,7 +45,6 @@ const plans = [
   }
 ];
 
-// Inicializar Mercado Pago con la public key desde variables de entorno
 initMercadoPago('TEST-3c7d96f2-f320-41b7-b724-05de43fd40ac');
 
 export function PricingPlans() {
@@ -78,9 +77,9 @@ export function PricingPlans() {
       });
 
       if (!response.ok) {
-        const errorData = await response.text();
+        const errorData = await response.json();
         console.error('Error response:', errorData);
-        throw new Error('Error al crear la preferencia de pago');
+        throw new Error(errorData.error || 'Error al crear la preferencia de pago');
       }
 
       const data = await response.json();
