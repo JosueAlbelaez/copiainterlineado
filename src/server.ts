@@ -53,8 +53,10 @@ const connectDB = async () => {
 
 // 5. Middlewares
 app.use(cors({
-  origin: 'http://localhost:8080',
-  credentials: true
+  origin: ['http://localhost:8080', 'https://interlineado-backend-fluent-phrases.vercel.app'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
