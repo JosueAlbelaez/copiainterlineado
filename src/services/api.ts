@@ -3,7 +3,7 @@ import { IUser } from '../types/express';
 
 // Instancia para la API de lecturas (deployed backend)
 export const API = axios.create({
-  baseURL: process.env.VITE_API_URL || 'http://localhost:5001'
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001'
 });
 
 // Instancia para autenticación (local backend)
