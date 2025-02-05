@@ -31,14 +31,12 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showPricingModal, setShowPricingModal] = useState(false);
-  const { isAuthenticated, userRole } = usePhrases('en', 'all');
+  const { userRole } = usePhrases('en', 'all');
   
-  console.log("🔹 Estado de autenticación:", { isAuthenticated, userRole });
-
   const FREE_CATEGORIES = ['Conversations', 'Technology'];
 
   const isCategoryLocked = (category: string) => {
-    if (!isAuthenticated || userRole === 'free') {
+    if (userRole === 'free') {
       return !FREE_CATEGORIES.includes(category);
     }
     return false;
@@ -52,7 +50,6 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
     }
   };
 
-  console.log("📌 Renderizando CategoryFilter...");
   return (
     <>
       <div className="mb-8">

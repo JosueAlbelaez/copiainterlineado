@@ -44,7 +44,6 @@ const authenticateToken = async (req: Request, res: Response, next: NextFunction
     }
 
     const user = await User.findById(decoded.userId);
-
     if (!user) {
       res.status(401).json({ error: 'Usuario no encontrado' });
       return;
@@ -76,6 +75,20 @@ app.get('/api/phrases', authenticateToken, asyncHandler(async (req: Request, res
     query.category = category;
   }
 
+  // Para usuarios free, solo mostrar categorías gratuitas si se especifica una categoría
+  if (user.role === 'free' && category && category !== 'all') {
+    const FREE_CATEGORIES = ['Conversations', 'Technology'];
+    if (!FREE_CATEGORIES.includes(category as string)) {
+      return res.status(403).json({ 
+        error: 'Categoría no disponible para usuarios gratuitos',
+        userInfo: {
+          role: user.role,
+          dailyPhrasesCount: user.dailyPhrasesCount
+        }
+      });
+    }
+  }
+
   // Resetear el contador diario si es necesario
   if (user.role === 'free') {
     const today = startOfDay(new Date());
@@ -86,20 +99,6 @@ app.get('/api/phrases', authenticateToken, asyncHandler(async (req: Request, res
       user.lastPhrasesReset = new Date();
       await user.save();
       console.log('🔄 Contador diario reseteado para usuario:', user._id);
-    }
-
-    // Para usuarios free, solo mostrar categorías gratuitas si se especifica una categoría
-    if (category && category !== 'all') {
-      const FREE_CATEGORIES = ['Conversations', 'Technology'];
-      if (!FREE_CATEGORIES.includes(category as string)) {
-        return res.status(403).json({ 
-          error: 'Categoría no disponible para usuarios gratuitos',
-          userInfo: {
-            role: user.role,
-            dailyPhrasesCount: user.dailyPhrasesCount
-          }
-        });
-      }
     }
   }
 
@@ -164,7 +163,7 @@ app.post('/api/auth/signin', asyncHandler(async (req: Request, res: Response) =>
     return res.status(401).json({ error: 'Contraseña incorrecta' });
   }
 
-  const token = verifyToken(JSON.stringify({ userId: user._id }));
+  const token = generateToken({ userId: user._id });
   res.json({ token, user });
 }));
 
@@ -188,7 +187,7 @@ app.post('/api/auth/signup', asyncHandler(async (req: Request, res: Response) =>
   });
 
   await user.save();
-  const token = verifyToken(JSON.stringify({ userId: user._id }));
+  const token = generateToken({ userId: user._id });
   res.status(201).json({ token, user });
 }));
 
