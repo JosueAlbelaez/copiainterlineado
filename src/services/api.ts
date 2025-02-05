@@ -1,15 +1,14 @@
-
 import axios from 'axios';
 import { IUser } from '../types/express';
 
-// Instancia para la API de lecturas (deployed backend)
+// Instancia para la API principal (deployed backend)
 export const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL  // Usando la variable de entorno para lecturas
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001'
 });
 
-// Instancia para autenticación y frases (local backend)
+// Instancia para autenticación (local backend)
 export const AUTH_API = axios.create({
-  baseURL: 'http://localhost:5001/api/auth'  // Servidor local para auth
+  baseURL: `${import.meta.env.VITE_API_URL}/api/auth` || 'http://localhost:5001/api/auth'
 });
 
 // Configurar interceptores para ambas instancias
@@ -22,7 +21,6 @@ export const AUTH_API = axios.create({
     return config;
   });
 
-  // Agregar interceptor para logs
   instance.interceptors.response.use(
     response => {
       console.log(`✅ ${response.config.method?.toUpperCase()} ${response.config.url} success:`, response.data);
@@ -35,19 +33,9 @@ export const AUTH_API = axios.create({
   );
 });
 
-interface LoginResponse {
-  token: string;
-  user: IUser;
-}
-
-interface RegisterResponse {
-  token: string;
-  user: IUser;
-}
-
 // Auth endpoints
-export const loginUser = async (credentials: { email: string; password: string }): Promise<LoginResponse> => {
-  const response = await AUTH_API.post<LoginResponse>('/signin', credentials);
+export const loginUser = async (credentials: { email: string; password: string }) => {
+  const response = await AUTH_API.post('/signin', credentials);
   return response.data;
 };
 
@@ -56,13 +44,13 @@ export const registerUser = async (userData: {
   lastName: string;
   email: string;
   password: string;
-}): Promise<RegisterResponse> => {
-  const response = await AUTH_API.post<RegisterResponse>('/signup', userData);
+}) => {
+  const response = await AUTH_API.post('/signup', userData);
   return response.data;
 };
 
 export const verifyToken = async (): Promise<IUser> => {
-  const response = await AUTH_API.get<IUser>('/me');
+  const response = await AUTH_API.get('/me');
   return response.data;
 };
 
@@ -76,8 +64,8 @@ export const resetPassword = async (token: string, password: string) => {
   return response.data;
 };
 
-// Reading endpoints (usando el backend deployado)
+// Reading endpoints
 export const getReadings = async () => {
-  const response = await API.get('/readings');
+  const response = await API.get('/api/readings');
   return response.data;
 };
