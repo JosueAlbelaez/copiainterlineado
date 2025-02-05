@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// Instancia para la API de lecturas (deployed backend)
+// Instancia para la API de lecturas y frases (deployed backend)
 export const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001'
 });
@@ -32,7 +32,7 @@ export const AUTH_API = axios.create({
   );
 });
 
-// Auth endpoints
+// Auth endpoints (usando AUTH_API)
 export const loginUser = async (credentials: { email: string; password: string }) => {
   const response = await AUTH_API.post('/signin', credentials);
   return response.data;
@@ -63,13 +63,13 @@ export const resetPassword = async (token: string, password: string) => {
   return response.data;
 };
 
-// Reading endpoints
+// Reading endpoints (usando API)
 export const getReadings = async () => {
   const response = await API.get('/api/readings');
   return response.data;
 };
 
-// Phrases endpoints
+// Phrases endpoints (usando API)
 export const getPhrases = async (language: string, category?: string) => {
   const response = await API.get('/api/phrases', {
     params: { language, category }
