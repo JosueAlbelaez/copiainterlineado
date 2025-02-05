@@ -37,7 +37,12 @@ const authenticateToken = async (req: Request, res: Response, next: NextFunction
       return;
     }
 
-    const decoded = verifyToken(token) as any;
+    const decoded = verifyToken(token);
+    if (!decoded || !decoded.userId) {
+      res.status(401).json({ error: 'Token inválido' });
+      return;
+    }
+
     const user = await User.findById(decoded.userId);
 
     if (!user) {
@@ -149,7 +154,7 @@ app.post('/api/auth/signin', asyncHandler(async (req: Request, res: Response) =>
     return res.status(401).json({ error: 'Contraseña incorrecta' });
   }
 
-  const token = verifyToken({ userId: user._id });
+  const token = verifyToken(JSON.stringify({ userId: user._id }));
   res.json({ token, user });
 }));
 
@@ -173,7 +178,7 @@ app.post('/api/auth/signup', asyncHandler(async (req: Request, res: Response) =>
   });
 
   await user.save();
-  const token = verifyToken({ userId: user._id });
+  const token = verifyToken(JSON.stringify({ userId: user._id }));
   res.status(201).json({ token, user });
 }));
 
