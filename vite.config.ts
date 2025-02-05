@@ -17,14 +17,13 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 8080,
       proxy: {
+        '/api/readings': {
+          target: apiUrl,
+          changeOrigin: true,
+          secure: false
+        },
         '/api/auth': {
           target: 'http://localhost:5001',
-          changeOrigin: true,
-          secure: false,
-          rewrite: (path) => path.replace(/^\/api\/auth/, '/api/auth')
-        },
-        '/api': {
-          target: apiUrl,
           changeOrigin: true,
           secure: false
         }

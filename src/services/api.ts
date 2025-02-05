@@ -8,7 +8,7 @@ export const API = axios.create({
 
 // Instancia para autenticación (local backend)
 export const AUTH_API = axios.create({
-  baseURL: 'http://localhost:5001/api/auth'  // Siempre usar el backend local para auth
+  baseURL: 'http://localhost:5001/api/auth'
 });
 
 // Configurar interceptores para ambas instancias
@@ -66,6 +66,6 @@ export const resetPassword = async (token: string, password: string) => {
 
 // Reading endpoints
 export const getReadings = async () => {
-  const response = await API.get('/api/readings');  // Mantenemos /api/readings que es la ruta correcta
+  const response = await API.get('/api/readings');
   return response.data;
 };

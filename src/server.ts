@@ -191,6 +191,17 @@ app.get('/api/auth/me', authenticateToken, asyncHandler(async (req: Request, res
   });
 }));
 
+// Actualizar la ruta para obtener lecturas
+app.get('/api/readings', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
+  try {
+    const readings = await Reading.find();
+    res.json(readings);
+  } catch (error) {
+    console.error('Error al obtener lecturas:', error);
+    res.status(500).json({ error: 'Error al obtener lecturas' });
+  }
+}));
+
 // Agregar la ruta para obtener frases
 app.get('/api/phrases', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
   const { language, category } = req.query;
