@@ -2,9 +2,9 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import { config } from 'dotenv';
-import { User } from './src/models/User';
-import { Phrase } from './src/models/Phrase';
-import { verifyToken } from './src/utils/jwt';
+import { User } from './models/User';
+import { Phrase } from './models/Phrase';
+import { verifyToken } from './utils/jwt';
 import { startOfDay } from 'date-fns';
 
 config();
