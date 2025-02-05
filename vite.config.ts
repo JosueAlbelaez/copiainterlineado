@@ -1,8 +1,12 @@
+
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react({
+    // Habilitar JSX en archivos .tsx
+    jsxRuntime: 'automatic'
+  })],
   resolve: {
     alias: {
       '@': '/src',
@@ -18,5 +22,9 @@ export default defineConfig({
         rewrite: (path) => path
       }
     }
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: true
   }
 });

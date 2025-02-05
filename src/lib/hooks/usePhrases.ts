@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useToast } from '../../hooks/use-toast';
 import axios from 'axios';
@@ -46,30 +47,33 @@ export function usePhrases(language: string, category?: string): UsePhraseReturn
         return;
       }
 
-      const authResponse = await axios.get('/api/user/me', {
+      const authResponse = await axios.get('http://localhost:5001/api/auth/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
 
       setIsAuthenticated(true);
       setUserRole(authResponse.data.role);
 
-      const phrasesResponse = await axios.get('/api/phrases', {
+      console.log('Fetching phrases with params:', { language, category });
+      const phrasesResponse = await axios.get('http://localhost:5001/api/phrases', {
         params: { language, category },
         headers: { Authorization: `Bearer ${token}` }
       });
 
+      console.log('Phrases response:', phrasesResponse.data);
       setPhrases(phrasesResponse.data.phrases);
       setDailyCount(phrasesResponse.data.userInfo.dailyPhrasesCount);
       setCurrentPhraseIndex(0);
 
-    } catch (error: any) {
-      const message = error.response?.data?.error || 'Error al cargar las frases';
+    } catch (err: any) {
+      const message = err.response?.data?.error || 'Error al cargar las frases';
       setError(message);
       toast({
         title: "Error",
         description: message,
         variant: "destructive"
       });
+      console.error('Error loading phrases:', err);
     } finally {
       setIsLoading(false);
     }
@@ -81,7 +85,7 @@ export function usePhrases(language: string, category?: string): UsePhraseReturn
 
   useEffect(() => {
     loadPhrases();
-  }, [language, category, userRole]);
+  }, [language, category]);
 
   const incrementDailyCount = async () => {
     try {
@@ -89,14 +93,14 @@ export function usePhrases(language: string, category?: string): UsePhraseReturn
       if (!token) return;
 
       if (userRole === 'free') {
-        const response = await axios.post('/api/phrases/increment', null, {
+        const response = await axios.post('http://localhost:5001/api/phrases/increment', null, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
         setDailyCount(response.data.dailyPhrasesCount);
       }
-    } catch (error) {
-      const message = error.response?.data?.error || 'Error al incrementar el contador diario';
+    } catch (err: any) {
+      const message = err.response?.data?.error || 'Error al incrementar el contador diario';
       setError(message);
       toast({
         title: "Error",
@@ -128,7 +132,7 @@ export function usePhrases(language: string, category?: string): UsePhraseReturn
     error,
     isAuthenticated,
     userRole,
-    refresh, 
+    refresh,
     currentPhraseIndex,
     goToNextPhrase,
     goToPreviousPhrase,
