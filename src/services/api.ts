@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { IUser } from '../types/express';
 
 // Instancia para la API de lecturas (deployed backend)
 export const API = axios.create({
@@ -49,7 +48,7 @@ export const registerUser = async (userData: {
   return response.data;
 };
 
-export const verifyToken = async (): Promise<IUser> => {
+export const verifyToken = async () => {
   const response = await AUTH_API.get('/me');
   return response.data;
 };
