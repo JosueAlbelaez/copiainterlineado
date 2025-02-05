@@ -1,14 +1,15 @@
+
 import axios from 'axios';
 import { IUser } from '../types/express';
 
 // Instancia para la API de lecturas (deployed backend)
 export const API = axios.create({
-  baseURL: '/api'
+  baseURL: 'http://localhost:5001/api'  // Actualizado para apuntar al puerto 5001 donde corre Express
 });
 
 // Instancia para autenticación (local backend)
 export const AUTH_API = axios.create({
-  baseURL: '/api/auth'
+  baseURL: 'http://localhost:5001/api/auth'  // Actualizado para apuntar al puerto 5001
 });
 
 // Configurar interceptores para ambas instancias
