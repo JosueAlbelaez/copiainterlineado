@@ -224,6 +224,16 @@ app.get('/api/phrases', authenticateToken, asyncHandler(async (req: Request, res
   });
 }));
 
+// Update increment endpoint to use /api prefix
+app.post('/api/phrases/increment', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
+  const user = req.user!;
+  if (user.role === 'free') {
+    user.dailyPhrasesCount += 1;
+    await user.save();
+  }
+  res.json({ dailyPhrasesCount: user.dailyPhrasesCount });
+}));
+
 // 10. Manejo de errores mejorado
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
   console.error('🔥 Error:', error.stack);
