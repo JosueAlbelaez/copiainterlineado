@@ -1,9 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { loginUser, registerUser, verifyToken } from '../services/api';
-import { IUser } from '../types/express';
 
-type User = Omit<IUser, '_id' | 'dailyPhrasesCount' | 'lastPhrasesReset'> & {
+// Define a simpler User type that matches our transformed data
+type User = {
   id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: 'free' | 'premium' | 'admin';
 };
 
 interface AuthContextType {
