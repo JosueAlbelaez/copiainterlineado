@@ -17,11 +17,23 @@ export const SignInForm: React.FC<SignInFormProps> = ({ onAuthSuccess, onSwitchT
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+
+    if (!email || !password) {
+      setError('Por favor complete todos los campos');
+      return;
+    }
+
     try {
       await login(email, password);
       onAuthSuccess();
-    } catch (err) {
-      setError('Credenciales inválidas');
+    } catch (err: any) {
+      console.error('Error de login:', err);
+      if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else {
+        setError('Error al iniciar sesión. Por favor intente nuevamente.');
+      }
     }
   };
 

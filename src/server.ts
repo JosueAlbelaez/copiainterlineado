@@ -163,12 +163,18 @@ app.post('/api/auth/signin', asyncHandler(async (req: Request, res: Response) =>
   const { email, password } = validation.data;
   console.log('Buscando usuario:', email);
 
-  const user = await User.findOne({ email }).select('+password');
-  if (!user || !(await user.comparePassword(password))) {
-    console.log('Usuario no encontrado:', email); 
-    return res.status(401).json({ error: 'Invalid credentials' });
+  const user = await User.findOne({ email });
+  if (!user) {
+    console.log('Usuario no encontrado:', email);
+    return res.status(401).json({ error: 'Credenciales inválidas' });
   }
-  console.log('Login exitoso. Generando token...'); 
+
+  const isValidPassword = await user.comparePassword(password);
+  if (!isValidPassword) {
+    return res.status(401).json({ error: 'Credenciales inválidas' });
+  }
+
+  console.log('Login exitoso. Generando token...');
   const token = generateToken({ userId: user._id });
   
   res.json({
