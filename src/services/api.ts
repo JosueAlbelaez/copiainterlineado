@@ -2,38 +2,33 @@
 import axios from 'axios';
 import { IUser } from '../types/express';
 
-// Instancia para la API de lecturas (deployed backend)
+// Single instance for all API calls
 export const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL  // Usando la variable de entorno para lecturas
+  baseURL: 'http://localhost:5001/api'
 });
 
-// Instancia para autenticación y frases (local backend)
-export const AUTH_API = axios.create({
-  baseURL: 'http://localhost:5001/api/auth'  // Servidor local para auth
+// Alias for backward compatibility
+export const AUTH_API = API;
+
+// Configure interceptors
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
-// Configurar interceptores para ambas instancias
-[API, AUTH_API].forEach(instance => {
-  instance.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  });
-
-  // Agregar interceptor para logs
-  instance.interceptors.response.use(
-    response => {
-      console.log(`✅ ${response.config.method?.toUpperCase()} ${response.config.url} success:`, response.data);
-      return response;
-    },
-    error => {
-      console.error(`❌ ${error.config?.method?.toUpperCase()} ${error.config?.url} error:`, error.response?.data || error.message);
-      return Promise.reject(error);
-    }
-  );
-});
+API.interceptors.response.use(
+  response => {
+    console.log(`✅ ${response.config.method?.toUpperCase()} ${response.config.url} success:`, response.data);
+    return response;
+  },
+  error => {
+    console.error(`❌ ${error.config?.method?.toUpperCase()} ${error.config?.url} error:`, error.response?.data || error.message);
+    return Promise.reject(error);
+  }
+);
 
 interface LoginResponse {
   token: string;
@@ -47,7 +42,7 @@ interface RegisterResponse {
 
 // Auth endpoints
 export const loginUser = async (credentials: { email: string; password: string }): Promise<LoginResponse> => {
-  const response = await AUTH_API.post<LoginResponse>('/signin', credentials);
+  const response = await API.post<LoginResponse>('/auth/signin', credentials);
   return response.data;
 };
 
@@ -57,26 +52,26 @@ export const registerUser = async (userData: {
   email: string;
   password: string;
 }): Promise<RegisterResponse> => {
-  const response = await AUTH_API.post<RegisterResponse>('/signup', userData);
+  const response = await API.post<RegisterResponse>('/auth/signup', userData);
   return response.data;
 };
 
 export const verifyToken = async (): Promise<IUser> => {
-  const response = await AUTH_API.get<IUser>('/me');
+  const response = await API.get<IUser>('/auth/me');
   return response.data;
 };
 
 export const forgotPassword = async (email: string) => {
-  const response = await AUTH_API.post('/forgot-password', { email });
+  const response = await API.post('/auth/forgot-password', { email });
   return response.data;
 };
 
 export const resetPassword = async (token: string, password: string) => {
-  const response = await AUTH_API.post('/reset-password', { token, password });
+  const response = await API.post('/auth/reset-password', { token, password });
   return response.data;
 };
 
-// Reading endpoints (usando el backend deployado)
+// Reading endpoints
 export const getReadings = async () => {
   const response = await API.get('/readings');
   return response.data;
