@@ -88,9 +88,19 @@ app.get('/api/phrases', authenticateToken, asyncHandler(async (req: Request, res
       console.log('🔄 Contador diario reseteado para usuario:', user._id);
     }
 
-    // Para usuarios free, solo mostrar categorías gratuitas
-    const FREE_CATEGORIES = ['Conversations', 'Technology'];
-    query.category = { $in: FREE_CATEGORIES };
+    // Para usuarios free, solo mostrar categorías gratuitas si se especifica una categoría
+    if (category && category !== 'all') {
+      const FREE_CATEGORIES = ['Conversations', 'Technology'];
+      if (!FREE_CATEGORIES.includes(category as string)) {
+        return res.status(403).json({ 
+          error: 'Categoría no disponible para usuarios gratuitos',
+          userInfo: {
+            role: user.role,
+            dailyPhrasesCount: user.dailyPhrasesCount
+          }
+        });
+      }
+    }
   }
 
   console.log('📝 Query final:', query);

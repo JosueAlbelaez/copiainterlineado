@@ -46,7 +46,7 @@ export function usePhrases(language: string, category?: string): UsePhraseReturn
         return;
       }
 
-      const authResponse = await axios.get('/api/auth/me', {
+      const authResponse = await axios.get('/api/user/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -58,39 +58,21 @@ export function usePhrases(language: string, category?: string): UsePhraseReturn
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      const formattedPhrases = phrasesResponse.data.phrases.map((phrase: any) => ({
-        _id: phrase._id,
-        targetText: phrase.target_text,
-        translatedText: phrase.translated_text,
-        category: phrase.category,
-        language: phrase.language
-      }));
-
-      const filteredPhrases = userRole === 'free' && category 
-        ? formattedPhrases.filter((p: Phrase) => 
-            ['Conversations', 'Technology'].includes(p.category)
-          )
-        : formattedPhrases;
-
-      setPhrases(filteredPhrases);
+      setPhrases(phrasesResponse.data.phrases);
       setDailyCount(phrasesResponse.data.userInfo.dailyPhrasesCount);
       setCurrentPhraseIndex(0);
 
-    } catch (error) {
-      handleError(error);
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'Error al cargar las frases';
+      setError(message);
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleError = (error: any) => {
-    const message = error.response?.data?.error || 'Error al cargar las frases';
-    setError(message);
-    toast({
-      title: "Error",
-      description: message,
-      variant: "destructive"
-    });
   };
 
   const refresh = async () => {
@@ -114,7 +96,13 @@ export function usePhrases(language: string, category?: string): UsePhraseReturn
         setDailyCount(response.data.dailyPhrasesCount);
       }
     } catch (error) {
-      handleError(error);
+      const message = error.response?.data?.error || 'Error al incrementar el contador diario';
+      setError(message);
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive"
+      });
     }
   };
 
