@@ -30,7 +30,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchUserData = async () => {
     try {
       const userData = await verifyToken();
-      setUser(userData);
+      const transformedUser: User = {
+        id: userData._id,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        role: userData.role
+      };
+      setUser(transformedUser);
       setIsAuthenticated(true);
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -44,7 +51,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await loginUser({ email, password });
       
       localStorage.setItem('token', data.token);
-      setUser(data.user);
+      const transformedUser: User = {
+        id: data.user._id,
+        firstName: data.user.firstName,
+        lastName: data.user.lastName,
+        email: data.user.email,
+        role: data.user.role
+      };
+      setUser(transformedUser);
       setIsAuthenticated(true);
     } catch (error) {
       console.error('Error de login:', error);
@@ -56,7 +70,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const data = await registerUser(userData);
       localStorage.setItem('token', data.token);
-      setUser(data.user);
+      const transformedUser: User = {
+        id: data.user._id,
+        firstName: data.user.firstName,
+        lastName: data.user.lastName,
+        email: data.user.email,
+        role: data.user.role
+      };
+      setUser(transformedUser);
       setIsAuthenticated(true);
     } catch (error) {
       console.error('Error de registro:', error);

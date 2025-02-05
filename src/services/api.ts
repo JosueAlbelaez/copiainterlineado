@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { IUser } from '../types/express';
 
 // Instancia para la API de lecturas (deployed backend)
 export const API = axios.create({
@@ -33,9 +34,19 @@ export const AUTH_API = axios.create({
   );
 });
 
+interface LoginResponse {
+  token: string;
+  user: IUser;
+}
+
+interface RegisterResponse {
+  token: string;
+  user: IUser;
+}
+
 // Auth endpoints
-export const loginUser = async (credentials: { email: string; password: string }) => {
-  const response = await AUTH_API.post('/signin', credentials);
+export const loginUser = async (credentials: { email: string; password: string }): Promise<LoginResponse> => {
+  const response = await AUTH_API.post<LoginResponse>('/signin', credentials);
   return response.data;
 };
 
@@ -44,13 +55,13 @@ export const registerUser = async (userData: {
   lastName: string;
   email: string;
   password: string;
-}) => {
-  const response = await AUTH_API.post('/signup', userData);
+}): Promise<RegisterResponse> => {
+  const response = await AUTH_API.post<RegisterResponse>('/signup', userData);
   return response.data;
 };
 
-export const verifyToken = async () => {
-  const response = await AUTH_API.get('/me');
+export const verifyToken = async (): Promise<IUser> => {
+  const response = await AUTH_API.get<IUser>('/me');
   return response.data;
 };
 
