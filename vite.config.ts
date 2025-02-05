@@ -17,10 +17,20 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 8080,
       proxy: {
-        '/api': {
+        '/api/readings': {
           target: apiUrl,
           changeOrigin: true,
-          secure: false,
+          secure: false
+        },
+        '/api/phrases': {
+          target: apiUrl,
+          changeOrigin: true,
+          secure: false
+        },
+        '/api/auth': {
+          target: 'http://localhost:5001',
+          changeOrigin: true,
+          secure: false
         }
       }
     },

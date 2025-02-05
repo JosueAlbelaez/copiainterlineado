@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { IUser } from '../types/express';
 
-// Instancia para la API principal (deployed backend)
+// Instancia para la API de lecturas (deployed backend)
 export const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001'
+  baseURL: process.env.VITE_API_URL || 'http://localhost:5001'
 });
 
 // Instancia para autenticación (local backend)
