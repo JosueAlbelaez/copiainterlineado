@@ -66,6 +66,6 @@ export const resetPassword = async (token: string, password: string) => {
 
 // Reading endpoints
 export const getReadings = async () => {
-  const response = await API.get('/api/readings');
+  const response = await API.get('/api/readings');  // Añadido el prefijo /api
   return response.data;
 };
