@@ -5,7 +5,7 @@ interface IUser extends Document {
   firstName: string;
   lastName: string;
   email: string;
-  role: string;
+  role: 'free' | 'premium' | 'admin';
   dailyPhrasesCount: number;
   lastPhrasesReset: Date;
 }
@@ -18,4 +18,4 @@ declare global {
   }
 }
 
-export {};
+export { IUser };
