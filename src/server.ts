@@ -157,7 +157,9 @@ app.post('/api/auth/signup', asyncHandler(async (req: Request, res: Response) =>
 app.post('/api/auth/signin', asyncHandler(async (req: Request, res: Response) => {
   const validation = SignInSchema.safeParse(req.body);
   if (!validation.success) {
-    return res.status(400).json({ error: validation.error.errors.map(e => e.message) });
+    return res.status(400).json({ 
+      error: validation.error.errors.map(e => e.message).join(', ')
+    });
   }
 
   const { email, password } = validation.data;
