@@ -11,14 +11,21 @@ export default defineConfig(({ mode }) => {
         '@': '/src',
       },
     },
-    build: {
-      outDir: 'dist/client'
-    },
     server: {
       port: 8080,
       proxy: {
-        '/api': {
+        '/api/auth': {
           target: 'http://localhost:5001',
+          changeOrigin: true,
+          secure: false
+        },
+        '/api/create-preference': {
+          target: 'http://localhost:5001',
+          changeOrigin: true,
+          secure: false
+        },
+        '/api': {
+          target: env.VITE_API_URL || 'http://localhost:5001',
           changeOrigin: true,
           secure: false
         }

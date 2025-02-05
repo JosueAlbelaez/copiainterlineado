@@ -45,6 +45,7 @@ const plans = [
   }
 ];
 
+// Inicializar Mercado Pago con la public key desde variables de entorno
 initMercadoPago('TEST-3c7d96f2-f320-41b7-b724-05de43fd40ac');
 
 export function PricingPlans() {
@@ -61,12 +62,7 @@ export function PricingPlans() {
         throw new Error("Plan no encontrado");
       }
 
-      console.log('Enviando solicitud para crear preferencia:', {
-        planId: plan.id,
-        title: plan.title,
-        price: plan.price,
-        interval: plan.interval
-      });
+      console.log('Creando preferencia para el plan:', plan);
 
       const response = await fetch('/api/create-preference', {
         method: 'POST',
@@ -82,9 +78,9 @@ export function PricingPlans() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Error en la respuesta:', errorData);
-        throw new Error(errorData.error || 'Error al crear la preferencia de pago');
+        const errorData = await response.text();
+        console.error('Error response:', errorData);
+        throw new Error('Error al crear la preferencia de pago');
       }
 
       const data = await response.json();
@@ -92,7 +88,7 @@ export function PricingPlans() {
       setPreferenceId(data.preferenceId);
 
     } catch (error) {
-      console.error('Error al procesar la suscripción:', error);
+      console.error('Error:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Error al procesar la suscripción",
