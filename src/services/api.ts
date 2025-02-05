@@ -4,12 +4,12 @@ import { IUser } from '../types/express';
 
 // Instancia para la API de lecturas (deployed backend)
 export const API = axios.create({
-  baseURL: 'http://localhost:5001/api'  // Actualizado para apuntar al puerto 5001 donde corre Express
+  baseURL: import.meta.env.VITE_API_URL  // Usando la variable de entorno para lecturas
 });
 
-// Instancia para autenticación (local backend)
+// Instancia para autenticación y frases (local backend)
 export const AUTH_API = axios.create({
-  baseURL: 'http://localhost:5001/api/auth'  // Actualizado para apuntar al puerto 5001
+  baseURL: 'http://localhost:5001/api/auth'  // Servidor local para auth
 });
 
 // Configurar interceptores para ambas instancias
@@ -76,7 +76,7 @@ export const resetPassword = async (token: string, password: string) => {
   return response.data;
 };
 
-// Reading endpoints
+// Reading endpoints (usando el backend deployado)
 export const getReadings = async () => {
   const response = await API.get('/readings');
   return response.data;
