@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { useToast } from '../../hooks/use-toast';
-import axios from 'axios';
+import { AUTH_API } from '../../services/api';
 
 interface Phrase {
   _id: string;
@@ -47,17 +47,13 @@ export function usePhrases(language: string, category?: string): UsePhraseReturn
         return;
       }
 
-      const authResponse = await axios.get('http://localhost:5001/api/auth/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
+      const authResponse = await AUTH_API.get('/me');
       setIsAuthenticated(true);
       setUserRole(authResponse.data.role);
 
       console.log('Fetching phrases with params:', { language, category });
-      const phrasesResponse = await axios.get('http://localhost:5001/api/phrases', {
-        params: { language, category },
-        headers: { Authorization: `Bearer ${token}` }
+      const phrasesResponse = await AUTH_API.get('/phrases', {
+        params: { language, category }
       });
 
       console.log('Phrases response:', phrasesResponse.data);
@@ -93,10 +89,7 @@ export function usePhrases(language: string, category?: string): UsePhraseReturn
       if (!token) return;
 
       if (userRole === 'free') {
-        const response = await axios.post('http://localhost:5001/api/phrases/increment', null, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
+        const response = await AUTH_API.post('/phrases/increment');
         setDailyCount(response.data.dailyPhrasesCount);
       }
     } catch (err: any) {
