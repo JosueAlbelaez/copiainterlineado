@@ -30,11 +30,10 @@ export const SignInForm: React.FC<SignInFormProps> = ({ onAuthSuccess, onSwitchT
     } catch (err: any) {
       console.error('Error de login:', err);
       if (err.response?.data?.error) {
-        // Handle array of errors or single error string
-        const errorMessage = Array.isArray(err.response.data.error) 
-          ? err.response.data.error[0]
-          : err.response.data.error;
-        setError(typeof errorMessage === 'string' ? errorMessage : 'Error al iniciar sesión');
+        const errorMessage = err.response.data.error;
+        setError(typeof errorMessage === 'string' ? errorMessage : 
+          Array.isArray(errorMessage) ? errorMessage[0] : 
+          'Error al iniciar sesión');
       } else {
         setError('Error al iniciar sesión. Por favor intente nuevamente.');
       }
