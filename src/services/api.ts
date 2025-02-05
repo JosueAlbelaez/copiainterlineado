@@ -66,6 +66,6 @@ export const resetPassword = async (token: string, password: string) => {
 
 // Reading endpoints
 export const getReadings = async () => {
-  const response = await API.get('/api/phrases');  // Cambiado de /api/readings a /api/phrases
+  const response = await API.get('/api/readings');  // Mantenemos /api/readings que es la ruta correcta
   return response.data;
 };
