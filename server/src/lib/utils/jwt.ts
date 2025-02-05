@@ -6,9 +6,12 @@ interface CustomJwtPayload extends JwtPayload {
   userId: string;
 }
 
-export const generateToken = (payload: object, expiresIn: string = '7d'): string => {
+type ValidTimeUnit = 'h' | 'm' | 'd' | 'w' | 'y';
+type TimeValue = `${number}${ValidTimeUnit}`;
+
+export const generateToken = (payload: object, expiresIn: number | TimeValue = '24h'): string => {
   const options: SignOptions = {
-    expiresIn
+    expiresIn: expiresIn
   };
   
   return jwt.sign(payload, JWT_SECRET, options);
