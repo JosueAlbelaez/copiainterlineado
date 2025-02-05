@@ -27,26 +27,29 @@ const asyncHandler = (fn: Function) => (req: Request, res: Response, next: NextF
 };
 
 // Middleware para verificar el token
-const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
+const authenticateToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-      return res.status(401).json({ error: 'Token no proporcionado' });
+      res.status(401).json({ error: 'Token no proporcionado' });
+      return;
     }
 
     const decoded = verifyToken(token) as any;
     const user = await User.findById(decoded.userId);
 
     if (!user) {
-      return res.status(401).json({ error: 'Usuario no encontrado' });
+      res.status(401).json({ error: 'Usuario no encontrado' });
+      return;
     }
 
     req.user = user;
     next();
   } catch (error) {
-    return res.status(401).json({ error: 'Token inválido' });
+    res.status(401).json({ error: 'Token inválido' });
+    return;
   }
 };
 
@@ -55,82 +58,72 @@ app.get('/api/phrases', authenticateToken, asyncHandler(async (req: Request, res
   const { language, category } = req.query;
   const user = req.user!;
 
-  try {
-    console.log('👤 Usuario:', { id: user._id, role: user.role });
-    console.log('🔍 Buscando frases con:', { language, category });
-    
-    let query: any = {};
-    
-    if (language) {
-      query.language = language;
-    }
-    
-    if (category && category !== 'all') {
-      query.category = category;
-    }
-
-    // Resetear el contador diario si es necesario
-    if (user.role === 'free') {
-      const today = startOfDay(new Date());
-      const lastReset = startOfDay(user.lastPhrasesReset);
-
-      if (today > lastReset) {
-        user.dailyPhrasesCount = 0;
-        user.lastPhrasesReset = new Date();
-        await user.save();
-        console.log('🔄 Contador diario reseteado para usuario:', user._id);
-      }
-
-      // Para usuarios free, solo mostrar categorías gratuitas
-      const FREE_CATEGORIES = ['Conversations', 'Technology'];
-      query.category = { $in: FREE_CATEGORIES };
-    }
-
-    console.log('📝 Query final:', query);
-    const phrases = await Phrase.find(query);
-    console.log(`✨ Encontradas ${phrases.length} frases`);
-    
-    res.json({
-      phrases,
-      userInfo: {
-        role: user.role,
-        dailyPhrasesCount: user.dailyPhrasesCount
-      }
-    });
-  } catch (error) {
-    console.error('❌ Error al buscar frases:', error);
-    res.status(500).json({ error: 'Error al buscar frases' });
+  console.log('👤 Usuario:', { id: user._id, role: user.role });
+  console.log('🔍 Buscando frases con:', { language, category });
+  
+  let query: any = {};
+  
+  if (language) {
+    query.language = language;
   }
+  
+  if (category && category !== 'all') {
+    query.category = category;
+  }
+
+  // Resetear el contador diario si es necesario
+  if (user.role === 'free') {
+    const today = startOfDay(new Date());
+    const lastReset = startOfDay(user.lastPhrasesReset);
+
+    if (today > lastReset) {
+      user.dailyPhrasesCount = 0;
+      user.lastPhrasesReset = new Date();
+      await user.save();
+      console.log('🔄 Contador diario reseteado para usuario:', user._id);
+    }
+
+    // Para usuarios free, solo mostrar categorías gratuitas
+    const FREE_CATEGORIES = ['Conversations', 'Technology'];
+    query.category = { $in: FREE_CATEGORIES };
+  }
+
+  console.log('📝 Query final:', query);
+  const phrases = await Phrase.find(query);
+  console.log(`✨ Encontradas ${phrases.length} frases`);
+  
+  res.json({
+    phrases,
+    userInfo: {
+      role: user.role,
+      dailyPhrasesCount: user.dailyPhrasesCount
+    }
+  });
 }));
 
 // Ruta para incrementar el contador diario
 app.post('/api/phrases/increment', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
   const user = req.user!;
 
-  try {
-    if (user.role === 'free') {
-      const today = startOfDay(new Date());
-      const lastReset = startOfDay(user.lastPhrasesReset);
+  if (user.role === 'free') {
+    const today = startOfDay(new Date());
+    const lastReset = startOfDay(user.lastPhrasesReset);
 
-      if (today > lastReset) {
-        user.dailyPhrasesCount = 1;
-        user.lastPhrasesReset = new Date();
-      } else {
-        user.dailyPhrasesCount += 1;
-      }
-
-      await user.save();
+    if (today > lastReset) {
+      user.dailyPhrasesCount = 1;
+      user.lastPhrasesReset = new Date();
+    } else {
+      user.dailyPhrasesCount += 1;
     }
 
-    res.json({ dailyPhrasesCount: user.dailyPhrasesCount });
-  } catch (error) {
-    console.error('Error al incrementar contador:', error);
-    res.status(500).json({ error: 'Error al incrementar contador' });
+    await user.save();
   }
+
+  res.json({ dailyPhrasesCount: user.dailyPhrasesCount });
 }));
 
 // Manejador de errores global
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('❌ Error:', err);
   res.status(500).json({ error: 'Error interno del servidor' });
 });
