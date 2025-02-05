@@ -61,7 +61,12 @@ export function PricingPlans() {
         throw new Error("Plan no encontrado");
       }
 
-      console.log('Creando preferencia para el plan:', plan);
+      console.log('Enviando solicitud para crear preferencia:', {
+        planId: plan.id,
+        title: plan.title,
+        price: plan.price,
+        interval: plan.interval
+      });
 
       const response = await fetch('/api/create-preference', {
         method: 'POST',
@@ -78,7 +83,7 @@ export function PricingPlans() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Error response:', errorData);
+        console.error('Error en la respuesta:', errorData);
         throw new Error(errorData.error || 'Error al crear la preferencia de pago');
       }
 
@@ -87,7 +92,7 @@ export function PricingPlans() {
       setPreferenceId(data.preferenceId);
 
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error al procesar la suscripción:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Error al procesar la suscripción",

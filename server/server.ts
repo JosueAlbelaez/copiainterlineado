@@ -266,9 +266,10 @@ app.post('/api/create-preference', asyncHandler(async (req: Request, res: Respon
     console.error('Datos de plan incompletos:', { planId, title, price });
     return res.status(400).json({ error: 'Datos de plan incompletos' });
   }
-  
+
   try {
-    console.log('Creando preferencia con datos:', { planId, title, price, interval });
+    console.log('Iniciando creación de preferencia con token:', process.env.MP_ACCESS_TOKEN);
+    console.log('Datos del plan:', { planId, title, price, interval });
     
     const preference = await new Preference(client).create({
       body: {
@@ -297,11 +298,21 @@ app.post('/api/create-preference', asyncHandler(async (req: Request, res: Respon
 
     console.log('Preferencia creada exitosamente:', preference.id);
     res.json({ preferenceId: preference.id });
-  } catch (error) {
-    console.error('Error detallado al crear preferencia:', error);
+  } catch (error: any) {
+    console.error('Error detallado al crear preferencia:', {
+      message: error.message,
+      error: error.error,
+      status: error.status,
+      cause: error.cause
+    });
+    
     res.status(500).json({ 
       error: 'Error al crear preferencia de pago',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: process.env.NODE_ENV === 'development' ? {
+        message: error.message,
+        error: error.error,
+        status: error.status
+      } : undefined
     });
   }
 }));
