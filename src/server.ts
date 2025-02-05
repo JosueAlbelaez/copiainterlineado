@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import { z } from 'zod';
 import { User } from './lib/models/User';
 import { Phrase } from './lib/models/Phrase';
+import { Reading } from './lib/models/Reading';
 import { generateToken, verifyToken } from './lib/utils/jwt';
 import { sendPasswordResetEmail } from './lib/utils/email';
 import { startOfDay } from 'date-fns';
