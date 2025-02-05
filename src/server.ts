@@ -191,6 +191,7 @@ app.get('/api/auth/me', authenticateToken, asyncHandler(async (req: Request, res
   });
 }));
 
+// Agregar la ruta para obtener frases
 app.get('/api/phrases', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
   const { language, category } = req.query;
   const user = req.user!;
