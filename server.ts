@@ -195,32 +195,46 @@ app.get('/api/phrases', authenticateToken, asyncHandler(async (req: Request, res
   const { language, category } = req.query;
   const user = req.user!;
 
-  if (user.role === 'free') {
-    const today = startOfDay(new Date());
-    const lastReset = startOfDay(user.lastPhrasesReset);
-
-    if (today > lastReset) {
-      user.dailyPhrasesCount = 0;
-      user.lastPhrasesReset = new Date();
-      await user.save();
+  try {
+    console.log('Fetching phrases with params:', { language, category });
+    
+    let query: any = {};
+    
+    if (language) {
+      query.language = language;
     }
+    
+    if (category && category !== 'all') {
+      query.category = category;
+    }
+
+    if (user.role === 'free') {
+      const today = startOfDay(new Date());
+      const lastReset = startOfDay(user.lastPhrasesReset);
+
+      if (today > lastReset) {
+        user.dailyPhrasesCount = 0;
+        user.lastPhrasesReset = new Date();
+        await user.save();
+      }
+
+      query.category = { $in: FREE_CATEGORIES };
+    }
+
+    const phrases = await Phrase.find(query);
+    console.log(`Found ${phrases.length} phrases`);
+    
+    res.json({
+      phrases,
+      userInfo: {
+        role: user.role,
+        dailyPhrasesCount: user.dailyPhrasesCount
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching phrases:', error);
+    res.status(500).json({ error: 'Error fetching phrases' });
   }
-
-  const query: any = { 
-    ...(language && { language }),
-    ...(category && { category }),
-    ...(user.role === 'free' && { category: { $in: FREE_CATEGORIES } })
-  };
-
-  const phrases = await Phrase.find(query);
-  
-  res.json({
-    phrases,
-    userInfo: {
-      role: user.role,
-      dailyPhrasesCount: user.dailyPhrasesCount
-    }
-  });
 }));
 
 // 10. Manejo de errores mejorado
@@ -293,4 +307,3 @@ app.post('/api/create-preference', asyncHandler(async (req: Request, res: Respon
     res.status(500).json({ error: 'Error al crear preferencia de pago' });
   }
 }));
-
