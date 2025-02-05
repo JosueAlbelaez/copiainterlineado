@@ -77,21 +77,22 @@ const authenticateToken: express.RequestHandler = async (req, res, next): Promis
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = verifyToken(token);
+    
+    try {
+      const decoded = verifyToken(token);
+      const user = await User.findById(decoded.userId);
+      
+      if (!user) {
+        res.status(404).json({ error: 'User not found' });
+        return;
+      }
 
-    if (!decoded || typeof decoded !== 'object' || !('userId' in decoded)) {
+      req.user = user;
+      next();
+    } catch (error) {
       res.status(403).json({ error: 'Invalid token' });
       return;
     }
-
-    const user = await User.findById(decoded.userId);
-    if (!user) {
-      res.status(404).json({ error: 'User not found' });
-      return;
-    }
-
-    req.user = user;
-    next();
   } catch (error) {
     next(error);
   }
