@@ -8,7 +8,7 @@ export const API = axios.create({
 
 // Instancia para autenticación (local backend)
 export const AUTH_API = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api/auth` || 'http://localhost:5001/api/auth'
+  baseURL: 'http://localhost:5001/api/auth'  // Siempre usar el backend local para auth
 });
 
 // Configurar interceptores para ambas instancias
