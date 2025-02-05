@@ -11,7 +11,7 @@ interface SignInFormProps {
 export const SignInForm: React.FC<SignInFormProps> = ({ onAuthSuccess, onSwitchToSignUp }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string>('');
   const [showResetPassword, setShowResetPassword] = useState(false);
   const { login } = useAuth();
 
@@ -30,7 +30,9 @@ export const SignInForm: React.FC<SignInFormProps> = ({ onAuthSuccess, onSwitchT
     } catch (err: any) {
       console.error('Error de login:', err);
       if (err.response?.data?.error) {
-        setError(err.response.data.error);
+        setError(Array.isArray(err.response.data.error) 
+          ? err.response.data.error[0]
+          : err.response.data.error);
       } else {
         setError('Error al iniciar sesión. Por favor intente nuevamente.');
       }
