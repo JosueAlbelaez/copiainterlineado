@@ -122,6 +122,61 @@ app.post('/api/phrases/increment', authenticateToken, asyncHandler(async (req: R
   res.json({ dailyPhrasesCount: user.dailyPhrasesCount });
 }));
 
+// Ruta para obtener información del usuario
+app.get('/api/user/me', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
+  const user = req.user!;
+  res.json({
+    id: user._id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    role: user.role,
+    dailyPhrasesCount: user.dailyPhrasesCount
+  });
+}));
+
+// Ruta para iniciar sesión
+app.post('/api/auth/signin', asyncHandler(async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(401).json({ error: 'Usuario no encontrado' });
+  }
+
+  const isValidPassword = await user.comparePassword(password);
+  if (!isValidPassword) {
+    return res.status(401).json({ error: 'Contraseña incorrecta' });
+  }
+
+  const token = verifyToken({ userId: user._id });
+  res.json({ token, user });
+}));
+
+// Ruta para registro
+app.post('/api/auth/signup', asyncHandler(async (req: Request, res: Response) => {
+  const { firstName, lastName, email, password } = req.body;
+
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return res.status(400).json({ error: 'El correo electrónico ya está registrado' });
+  }
+
+  const user = new User({
+    firstName,
+    lastName,
+    email,
+    password,
+    role: 'free',
+    dailyPhrasesCount: 0,
+    lastPhrasesReset: new Date()
+  });
+
+  await user.save();
+  const token = verifyToken({ userId: user._id });
+  res.status(201).json({ token, user });
+}));
+
 // Manejador de errores global
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('❌ Error:', err);
