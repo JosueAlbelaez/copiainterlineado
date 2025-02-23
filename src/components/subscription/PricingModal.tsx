@@ -12,7 +12,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full p-6 relative">
+      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full h-[90vh] relative flex flex-col">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
@@ -20,7 +20,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
           <X className="w-6 h-6" />
         </button>
 
-        <div className="text-center mb-8">
+        <div className="text-center p-6">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
             Mejora tu experiencia
           </h2>
@@ -29,7 +29,9 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
           </p>
         </div>
 
-        <PricingPlans />
+        <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <PricingPlans />
+        </div>
       </div>
     </div>
   );

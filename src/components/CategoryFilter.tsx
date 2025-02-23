@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { usePhrases } from '../lib/hooks/usePhrases';
 import { PricingModal } from './subscription/PricingModal';
+import { useAuth } from '../contexts/AuthContext';
 
 interface CategoryFilterProps {
   selectedCategory: string | null;
@@ -31,11 +32,14 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showPricingModal, setShowPricingModal] = useState(false);
+  const { user } = useAuth();
   const { userRole } = usePhrases('en', 'all');
   
   const FREE_CATEGORIES = ['Conversations', 'Technology'];
+  const isPremium = user?.role === 'premium' || user?.role === 'admin';
 
   const isCategoryLocked = (category: string) => {
+    if (isPremium) return false;
     if (userRole === 'free') {
       return !FREE_CATEGORIES.includes(category);
     }

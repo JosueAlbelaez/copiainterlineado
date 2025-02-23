@@ -2,6 +2,7 @@ import { useState } from "react";
 import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 import { useToast } from "../../hooks/use-toast";
 import { PricingCard } from "./PricingCard";
+import { createPreference } from "../../services/api";
 
 const plans = [
   {
@@ -45,7 +46,7 @@ const plans = [
   }
 ];
 
-// Inicializar Mercado Pago con la public key desde variables de entorno
+// Inicializar Mercado Pago con la public key
 initMercadoPago('TEST-3c7d96f2-f320-41b7-b724-05de43fd40ac');
 
 export function PricingPlans() {
@@ -62,36 +63,14 @@ export function PricingPlans() {
         throw new Error("Plan no encontrado");
       }
 
-      console.log('Creando preferencia para el plan:', plan);
-
-      const response = await fetch('/api/create-preference', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          planId: plan.id,
-          title: plan.title,
-          price: plan.price,
-          interval: plan.interval
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error('Error response:', errorData);
-        throw new Error('Error al crear la preferencia de pago');
-      }
-
-      const data = await response.json();
-      console.log('Preferencia creada:', data);
-      setPreferenceId(data.preferenceId);
+      const response = await createPreference({ plan: planId });
+      setPreferenceId(response.preferenceId);
 
     } catch (error) {
       console.error('Error:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Error al procesar la suscripción",
+        description: "Error al procesar la suscripción. Por favor, intente nuevamente.",
         variant: "destructive",
       });
     } finally {
@@ -100,13 +79,7 @@ export function PricingPlans() {
   };
 
   return (
-    <div className="container mx-auto py-12 px-4">
-      <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Planes de Suscripción</h2>
-        <p className="text-gray-600">
-          Elige el plan que mejor se adapte a tus necesidades
-        </p>
-      </div>
+    <div className="container mx-auto py-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
         {plans.map((plan) => (
           <PricingCard

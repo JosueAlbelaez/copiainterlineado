@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Reading } from '../types';
 import { Book, Lock } from 'lucide-react';
 import { PricingModal } from './subscription/PricingModal';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ReadingCardProps {
   reading: Reading;
@@ -10,10 +11,15 @@ interface ReadingCardProps {
   isLocked: boolean;
 }
 
-export const ReadingCard: React.FC<ReadingCardProps> = ({ reading, onClick, isLocked }) => {
+export const ReadingCard: React.FC<ReadingCardProps> = ({ reading, onClick, isLocked: initialLockState }) => {
   const navigate = useNavigate();
   const [showPricingModal, setShowPricingModal] = useState(false);
   const hasImage = reading.imageUrl && reading.imageUrl.trim() !== '';
+  const { user } = useAuth();
+  
+  // Check if the user is premium or admin
+  const isPremium = user?.role === 'premium' || user?.role === 'admin';
+  const isLocked = initialLockState && !isPremium;
 
   const handleClick = () => {
     if (isLocked) {

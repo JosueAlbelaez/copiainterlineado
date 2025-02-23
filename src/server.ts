@@ -2,22 +2,43 @@ import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import { z } from 'zod';
-import { User } from './lib/models/User';
-import { Phrase } from './lib/models/Phrase';
-import { Reading } from './lib/models/Reading';
-import { generateToken, verifyToken } from './lib/utils/jwt';
-import { sendPasswordResetEmail } from './lib/utils/email';
+import { User } from '../src/lib/models/User';
+import { Phrase } from '../src/lib/models/Phrase';
+import { Reading } from '../src/lib/models/Reading';
+import { generateToken, verifyToken } from '../src/lib/utils/jwt';
+import { sendPasswordResetEmail } from '../src/lib/utils/email';
 import { startOfDay } from 'date-fns';
 import dotenv from 'dotenv';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
+import  IUser from '../src/types/express';
 
 dotenv.config();
 
-// 1. Extender tipos de Express
+
+
+dotenv.config();
+// Define the IUser interface for type safety
+interface IUser extends mongoose.Document {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  role: 'free' | 'premium' | 'admin';
+  isEmailVerified: boolean;
+  verificationToken?: string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
+  dailyPhrasesCount: number;
+  lastPhrasesReset: Date;
+  comparePassword(candidatePassword: string): Promise<boolean>;
+}
+
+// Update Express Request type
 declare global {
   namespace Express {
     interface Request {
-      user?: mongoose.Document & InstanceType<typeof User>;
+      user?: IUser;
     }
   }
 }
@@ -53,12 +74,24 @@ const connectDB = async () => {
 
 // 5. Middlewares
 app.use(cors({
-  origin: ['http://localhost:8080', 'https://interlineado-backend-fluent-phrases.vercel.app'],
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:8080',
+    'https://fluentphrases.org',
+    'https://interlineado-backend-fluent-phrases.vercel.app',
+    'https://backend-interlineado.vercel.app'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.json());
+
+// Test route
+app.get('/api/test', (_req: Request, res: Response) => {
+  res.json({ message: 'Backend is working!' });
+});
 
 // 6. Async handler con tipos seguros
 const asyncHandler = <T = void>(
@@ -70,7 +103,7 @@ const asyncHandler = <T = void>(
 };
 
 // 7. Middleware de autenticación corregido
-const authenticateToken: express.RequestHandler = async (req, res, next): Promise<void> => {
+const authenticateToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
     
@@ -87,7 +120,7 @@ const authenticateToken: express.RequestHandler = async (req, res, next): Promis
       return;
     }
 
-    const user = await User.findById(decoded.userId);
+    const user = await User.findById(decoded.userId).exec() as IUser;
     if (!user) {
       res.status(404).json({ error: 'User not found' });
       return;
@@ -123,7 +156,7 @@ app.post('/api/auth/forgot-password', asyncHandler(async (req: Request, res: Res
   }
 }));
 
-// 10. Rutas de autenticación
+// Rutas de autenticación
 app.post('/api/auth/signup', asyncHandler(async (req: Request, res: Response) => {
   const validation = SignUpSchema.safeParse(req.body);
   if (!validation.success) {
@@ -163,11 +196,9 @@ app.post('/api/auth/signin', asyncHandler(async (req: Request, res: Response) =>
   }
 
   const { email, password } = validation.data;
-  console.log('Buscando usuario:', email);
 
   const user = await User.findOne({ email });
   if (!user) {
-    console.log('Usuario no encontrado:', email);
     return res.status(401).json({ error: 'Credenciales inválidas' });
   }
 
@@ -176,7 +207,6 @@ app.post('/api/auth/signin', asyncHandler(async (req: Request, res: Response) =>
     return res.status(401).json({ error: 'Credenciales inválidas' });
   }
 
-  console.log('Login exitoso. Generando token...');
   const token = generateToken({ userId: user._id });
   
   res.json({
@@ -191,7 +221,7 @@ app.post('/api/auth/signin', asyncHandler(async (req: Request, res: Response) =>
   });
 }));
 
-// 9. Rutas protegidas
+// Rutas protegidas
 app.get('/api/auth/me', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
   res.json({
     id: req.user!._id,
@@ -202,7 +232,7 @@ app.get('/api/auth/me', authenticateToken, asyncHandler(async (req: Request, res
   });
 }));
 
-// Actualizar la ruta para obtener lecturas
+// Ruta para obtener lecturas
 app.get('/api/readings', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
   try {
     const readings = await Reading.find();
@@ -213,7 +243,7 @@ app.get('/api/readings', authenticateToken, asyncHandler(async (req: Request, re
   }
 }));
 
-// Agregar la ruta para obtener frases
+// Ruta para obtener frases
 app.get('/api/phrases', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
   const { language, category } = req.query;
   const user = req.user!;
@@ -230,8 +260,8 @@ app.get('/api/phrases', authenticateToken, asyncHandler(async (req: Request, res
   }
 
   const query: any = { 
-    ...(language && { language }),
-    ...(category && { category }),
+    ...(language && { language: language.toString() }),
+    ...(category && { category: category.toString() }),
     ...(user.role === 'free' && { category: { $in: FREE_CATEGORIES } })
   };
 
@@ -246,7 +276,7 @@ app.get('/api/phrases', authenticateToken, asyncHandler(async (req: Request, res
   });
 }));
 
-// Update increment endpoint to use /api prefix
+// Ruta para incrementar el contador de frases
 app.post('/api/phrases/increment', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
   const user = req.user!;
   if (user.role === 'free') {
@@ -256,42 +286,13 @@ app.post('/api/phrases/increment', authenticateToken, asyncHandler(async (req: R
   res.json({ dailyPhrasesCount: user.dailyPhrasesCount });
 }));
 
-// 10. Manejo de errores mejorado
-app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error('🔥 Error:', error.stack);
-  res.status(500).json({ 
-    error: 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { details: error.message })
-  });
-});
-
-// 11. Iniciar servidor
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-  });
-});
-
-// Webhook para recibir notificaciones de pago
-app.post('/api/webhook', asyncHandler(async (req: Request, res: Response) => {
-  const { type, data } = req.body;
-
-  if (type === 'payment') {
-    const paymentId = data.id;
-    // Aquí implementaremos la lógica para actualizar el estado de la suscripción
-    // basado en el estado del pago
-  }
-
-  res.sendStatus(200);
-}));
-
-// Configuración de Mercado Pago con el token de acceso desde variables de entorno
+// Configuración de Mercado Pago
 const client = new MercadoPagoConfig({ 
   accessToken: process.env.MP_ACCESS_TOKEN! 
 });
 
 // Ruta para crear preferencia de pago
-app.post('/api/create-preference', asyncHandler(async (req: Request, res: Response) => {
+app.post('/api/create-preference', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
   const { planId, title, price, interval } = req.body;
   
   try {
@@ -326,3 +327,36 @@ app.post('/api/create-preference', asyncHandler(async (req: Request, res: Respon
     res.status(500).json({ error: 'Error al crear preferencia de pago' });
   }
 }));
+
+// Webhook para recibir notificaciones de pago
+app.post('/api/webhook', asyncHandler(async (req: Request, res: Response) => {
+  const { type, data } = req.body;
+
+  if (type === 'payment') {
+    // Aquí implementaremos la lógica para actualizar el estado de la suscripción
+    // basado en el estado del pago
+    await User.findByIdAndUpdate(data.metadata.userId, {
+      role: 'premium'
+    });
+  }
+
+  res.sendStatus(200);
+}));
+
+// Manejo de errores mejorado
+app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error('🔥 Error:', error.stack);
+  res.status(500).json({ 
+    error: 'Internal server error',
+    ...(process.env.NODE_ENV === 'development' && { details: error.message })
+  });
+});
+
+// Iniciar servidor
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
+});
+
+export default app;

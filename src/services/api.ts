@@ -1,17 +1,32 @@
 import axios from 'axios';
 
-// Instancia para la API de lecturas y frases (deployed backend)
-export const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001'
+// Get base URLs from environment variables
+const AUTH_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001';
+const CONTENT_BASE_URL = import.meta.env.VITE_API_URL || 'https://interlineado-backend-fluent-phrases.vercel.app';
+
+// Instance for authentication (auth, user management, payments)
+export const authAPI = axios.create({
+  baseURL: AUTH_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
 });
 
-// Instancia para autenticación (local backend)
-export const AUTH_API = axios.create({
-  baseURL: 'http://localhost:5001/api/auth'
+// Instance for content (readings, phrases)
+export const contentAPI = axios.create({
+  baseURL: CONTENT_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
 });
 
-// Configurar interceptores para ambas instancias
-[API, AUTH_API].forEach(instance => {
+// For backward compatibility
+export const API = contentAPI;
+
+// Configure interceptors for both instances
+[authAPI, contentAPI].forEach(instance => {
   instance.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -34,7 +49,7 @@ export const AUTH_API = axios.create({
 
 // Auth endpoints
 export const loginUser = async (credentials: { email: string; password: string }) => {
-  const response = await AUTH_API.post('/signin', credentials);
+  const response = await authAPI.post('/api/auth/signin', credentials);
   return response.data;
 };
 
@@ -44,35 +59,78 @@ export const registerUser = async (userData: {
   email: string;
   password: string;
 }) => {
-  const response = await AUTH_API.post('/signup', userData);
+  const response = await authAPI.post('/api/auth/signup', userData);
   return response.data;
 };
 
 export const verifyToken = async () => {
-  const response = await AUTH_API.get('/me');
+  const response = await authAPI.get('/api/auth/me');
   return response.data;
 };
 
 export const forgotPassword = async (email: string) => {
-  const response = await AUTH_API.post('/forgot-password', { email });
+  const response = await authAPI.post('/api/auth/forgot-password', { email });
   return response.data;
 };
 
 export const resetPassword = async (token: string, password: string) => {
-  const response = await AUTH_API.post('/reset-password', { token, password });
+  const response = await authAPI.post('/api/auth/reset-password', { token, password });
   return response.data;
 };
 
-// Reading endpoints
+export const verifyEmail = async (token: string) => {
+  const response = await authAPI.post('/api/auth/verify-email', { token });
+  return response.data;
+};
+
+// Reading endpoints (using content API)
 export const getReadings = async () => {
-  const response = await API.get('/api/readings');
+  const response = await contentAPI.get('/api/readings');
   return response.data;
 };
 
-// Phrases endpoints
+export const getReadingById = async (id: string) => {
+  const response = await contentAPI.get(`/api/readings/${id}`);
+  return response.data;
+};
+
+// Phrases endpoints (using content API)
 export const getPhrases = async (language: string, category?: string) => {
-  const response = await API.get('/api/phrases', {
+  const response = await contentAPI.get('/api/phrases', {
     params: { language, category }
   });
+  return response.data;
+};
+
+export const incrementPhraseCount = async () => {
+  const response = await contentAPI.post('/api/phrases/increment');
+  return response.data;
+};
+
+// Payment endpoints (using auth API)
+export const createPreference = async (data: { plan: string }) => {
+  const response = await authAPI.post('/api/payments/create-preference', data);
+  return response.data;
+};
+
+export const verifySubscription = async () => {
+  const response = await authAPI.get('/api/payments/verify-subscription');
+  return response.data;
+};
+
+// User endpoints (using auth API)
+export const updateUserProfile = async (data: {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  currentPassword?: string;
+  newPassword?: string;
+}) => {
+  const response = await authAPI.put('/api/auth/profile', data);
+  return response.data;
+};
+
+export const getUserProfile = async () => {
+  const response = await authAPI.get('/api/auth/profile');
   return response.data;
 };

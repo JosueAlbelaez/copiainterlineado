@@ -28,7 +28,7 @@ export default defineConfig(({ mode }) => {
           secure: false
         },
         '/api/auth': {
-          target: 'http://localhost:5001',
+          target: apiUrl,
           changeOrigin: true,
           secure: false
         }
@@ -36,7 +36,8 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
-      sourcemap: true
+      sourcemap: true,
+      target: 'esnext'
     }
   };
 });
