@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useToast } from '../../hooks/use-toast';
-import { API } from '../../services/api';
+import { authAPI, contentAPI } from '../../services/api';
 
 interface Phrase {
   _id: string;
@@ -46,12 +46,12 @@ export function usePhrases(language: string, category?: string): UsePhraseReturn
         return;
       }
 
-      const authResponse = await API.get('/api/auth/me');
+      const authResponse = await authAPI.get('/api/auth/me');
       setIsAuthenticated(true);
       setUserRole(authResponse.data.role);
 
       console.log('Fetching phrases with params:', { language, category });
-      const phrasesResponse = await API.get('/api/phrases', {
+      const phrasesResponse = await contentAPI.get('/phrases', {
         params: { language, category }
       });
 
@@ -88,7 +88,7 @@ export function usePhrases(language: string, category?: string): UsePhraseReturn
       if (!token) return;
 
       if (userRole === 'free') {
-        const response = await API.post('/api/phrases/increment');
+        const response = await contentAPI.post('/phrases/increment');
         setDailyCount(response.data.dailyPhrasesCount);
       }
     } catch (err: any) {

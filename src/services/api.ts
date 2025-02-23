@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Get base URLs from environment variables
-const AUTH_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001';
+const AUTH_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001/api';
 const CONTENT_BASE_URL = import.meta.env.VITE_API_URL || 'https://interlineado-backend-fluent-phrases.vercel.app';
 
 // Instance for authentication (auth, user management, payments)
@@ -47,7 +47,7 @@ export const API = contentAPI;
   );
 });
 
-// Auth endpoints
+// Auth endpoints (using authAPI)
 export const loginUser = async (credentials: { email: string; password: string }) => {
   const response = await authAPI.post('/api/auth/signin', credentials);
   return response.data;
@@ -83,7 +83,7 @@ export const verifyEmail = async (token: string) => {
   return response.data;
 };
 
-// Reading endpoints (using content API)
+// Reading endpoints (using contentAPI)
 export const getReadings = async () => {
   const response = await contentAPI.get('/api/readings');
   return response.data;
@@ -94,7 +94,7 @@ export const getReadingById = async (id: string) => {
   return response.data;
 };
 
-// Phrases endpoints (using content API)
+// Phrases endpoints (using contentAPI)
 export const getPhrases = async (language: string, category?: string) => {
   const response = await contentAPI.get('/api/phrases', {
     params: { language, category }
@@ -107,7 +107,7 @@ export const incrementPhraseCount = async () => {
   return response.data;
 };
 
-// Payment endpoints (using auth API)
+// Payment endpoints (using authAPI)
 export const createPreference = async (data: { plan: string }) => {
   const response = await authAPI.post('/api/payments/create-preference', data);
   return response.data;
@@ -118,7 +118,7 @@ export const verifySubscription = async () => {
   return response.data;
 };
 
-// User endpoints (using auth API)
+// User endpoints (using authAPI)
 export const updateUserProfile = async (data: {
   firstName?: string;
   lastName?: string;
