@@ -10,13 +10,10 @@ import { sendPasswordResetEmail } from '../src/lib/utils/email';
 import { startOfDay } from 'date-fns';
 import dotenv from 'dotenv';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
-import  IUser from '../src/types/express';
+import IUser from '../src/types/express';
 
 dotenv.config();
 
-
-
-dotenv.config();
 // Define the IUser interface for type safety
 interface IUser extends mongoose.Document {
   _id: string;
@@ -292,18 +289,29 @@ const client = new MercadoPagoConfig({
 });
 
 // Ruta para crear preferencia de pago
-app.post('/api/create-preference', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
-  const { planId, title, price, interval } = req.body;
+app.post('/api/payments/create-preference', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
+  const { plan } = req.body;
   
   try {
+    const planConfig = {
+      monthly: { price: 9.99, title: "Plan Mensual" },
+      biannual: { price: 49.99, title: "Plan Semestral" },
+      annual: { price: 89.99, title: "Plan Anual" }
+    };
+
+    const selectedPlan = planConfig[plan as keyof typeof planConfig];
+    if (!selectedPlan) {
+      return res.status(400).json({ error: 'Plan inválido' });
+    }
+
     const preference = await new Preference(client).create({
       body: {
         items: [
           {
-            id: planId,
-            title: title,
+            id: plan,
+            title: selectedPlan.title,
             quantity: 1,
-            unit_price: price,
+            unit_price: selectedPlan.price,
             currency_id: "USD"
           }
         ],
@@ -315,8 +323,8 @@ app.post('/api/create-preference', authenticateToken, asyncHandler(async (req: R
         auto_return: "approved",
         notification_url: `${process.env.BACKEND_URL}/api/webhook`,
         metadata: {
-          planId,
-          interval
+          userId: req.user!._id,
+          planId: plan
         }
       }
     });
@@ -333,11 +341,17 @@ app.post('/api/webhook', asyncHandler(async (req: Request, res: Response) => {
   const { type, data } = req.body;
 
   if (type === 'payment') {
-    // Aquí implementaremos la lógica para actualizar el estado de la suscripción
-    // basado en el estado del pago
-    await User.findByIdAndUpdate(data.metadata.userId, {
-      role: 'premium'
-    });
+    try {
+      const { metadata } = data;
+      if (metadata?.userId) {
+        await User.findByIdAndUpdate(metadata.userId, {
+          role: 'premium'
+        });
+        console.log(`Usuario ${metadata.userId} actualizado a premium`);
+      }
+    } catch (error) {
+      console.error('Error procesando webhook:', error);
+    }
   }
 
   res.sendStatus(200);

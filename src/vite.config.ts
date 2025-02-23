@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const apiUrl = env.VITE_API_URL || 'http://localhost:5001';
+  const authUrl = env.VITE_BACKEND_URL || 'http://localhost:5001';
 
   return {
     plugins: [react({
@@ -28,7 +29,12 @@ export default defineConfig(({ mode }) => {
           secure: false
         },
         '/api/auth': {
-          target: 'http://localhost:5001',
+          target: authUrl,
+          changeOrigin: true,
+          secure: false
+        },
+        '/api/payments': {  // Add this new proxy rule
+          target: authUrl,
           changeOrigin: true,
           secure: false
         }
@@ -36,7 +42,8 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
-      sourcemap: true
+      sourcemap: true,
+      target: 'esnext'
     }
   };
 });

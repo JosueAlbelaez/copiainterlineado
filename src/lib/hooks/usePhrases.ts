@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useToast } from '../../hooks/use-toast';
 import { authAPI, contentAPI } from '../../services/api';
@@ -43,6 +44,7 @@ export function usePhrases(language: string, category?: string): UsePhraseReturn
 
       if (!token) {
         setIsAuthenticated(false);
+        setIsLoading(false);
         return;
       }
 
@@ -50,25 +52,23 @@ export function usePhrases(language: string, category?: string): UsePhraseReturn
       setIsAuthenticated(true);
       setUserRole(authResponse.data.role);
 
-      console.log('Fetching phrases with params:', { language, category });
-      const phrasesResponse = await contentAPI.get('/phrases', {
+      const phrasesResponse = await contentAPI.get('/api/phrases', {
         params: { language, category }
       });
 
-      console.log('Phrases response:', phrasesResponse.data);
-      setPhrases(phrasesResponse.data.phrases);
-      setDailyCount(phrasesResponse.data.userInfo.dailyPhrasesCount);
+      setPhrases(phrasesResponse.data.phrases || []);
+      setDailyCount(phrasesResponse.data.userInfo?.dailyPhrasesCount || 0);
       setCurrentPhraseIndex(0);
 
     } catch (err: any) {
       const message = err.response?.data?.error || 'Error al cargar las frases';
+      console.error('Error loading phrases:', err);
       setError(message);
       toast({
         title: "Error",
         description: message,
         variant: "destructive"
       });
-      console.error('Error loading phrases:', err);
     } finally {
       setIsLoading(false);
     }

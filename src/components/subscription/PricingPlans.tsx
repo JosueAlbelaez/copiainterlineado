@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
 import { useToast } from "../../hooks/use-toast";
 import { PricingCard } from "./PricingCard";
 import { createPreference } from "../../services/api";
@@ -8,7 +7,7 @@ const plans = [
   {
     id: "monthly",
     title: "Plan Mensual",
-    price: 9.99,
+    price: 5.99,
     interval: "mes",
     description: "Acceso completo por un mes",
     features: [
@@ -21,7 +20,7 @@ const plans = [
   {
     id: "biannual",
     title: "Plan Semestral",
-    price: 49.99,
+    price: 29.99,
     interval: "6 meses",
     description: "Ahorra con 6 meses de acceso",
     features: [
@@ -34,7 +33,7 @@ const plans = [
   {
     id: "annual",
     title: "Plan Anual",
-    price: 89.99,
+    price:49.99,
     interval: "año",
     description: "La mejor relación calidad-precio",
     features: [
@@ -46,12 +45,8 @@ const plans = [
   }
 ];
 
-// Inicializar Mercado Pago con la public key
-initMercadoPago('TEST-3c7d96f2-f320-41b7-b724-05de43fd40ac');
-
 export function PricingPlans() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
-  const [preferenceId, setPreferenceId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleSubscribe = async (planId: string) => {
@@ -64,7 +59,14 @@ export function PricingPlans() {
       }
 
       const response = await createPreference({ plan: planId });
-      setPreferenceId(response.preferenceId);
+      
+      // Redirect to MercadoPago checkout
+      if (response.preferenceId) {
+        const checkoutUrl = `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${response.preferenceId}`;
+        window.open(checkoutUrl, '_blank');
+      } else {
+        throw new Error("No se pudo obtener el ID de preferencia");
+      }
 
     } catch (error) {
       console.error('Error:', error);
@@ -94,11 +96,6 @@ export function PricingPlans() {
           />
         ))}
       </div>
-      {preferenceId && (
-        <div className="fixed bottom-4 right-4 scale-125 transform">
-          <Wallet initialization={{ preferenceId }} />
-        </div>
-      )}
     </div>
   );
 }
