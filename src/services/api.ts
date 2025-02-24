@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Get base URLs from environment variables
-const AUTH_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001';
+const AUTH_BASE_URL = import.meta.env.VITE_BACKEND_URL; // || 'http://localhost:5001';
 
 // Instance for authentication (auth, user management, payments)
 export const authAPI = axios.create({
