@@ -58,7 +58,7 @@ authAPI.interceptors.response.use(
 // Auth endpoints
 export const loginUser = async (credentials: { email: string; password: string }) => {
   console.log('Attempting login with credentials:', { ...credentials, password: '[REDACTED]' });
-  const response = await authAPI.post('/auth/signin', credentials);  // Cambiado a /auth/signin
+  const response = await authAPI.post('/api/auth/signin', credentials);  // Cambiado a /api/auth/signin
   return response.data;
 };
 
