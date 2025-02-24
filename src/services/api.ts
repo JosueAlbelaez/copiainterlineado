@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Get base URLs from environment variables
-const AUTH_BASE_URL = import.meta.env.VITE_BACKEND_URL; // || 'http://localhost:5001';
+const AUTH_BASE_URL = `${import.meta.env.VITE_BACKEND_URL}`; 
 
 // Instance for authentication (auth, user management, payments)
 export const authAPI = axios.create({
@@ -18,6 +18,7 @@ authAPI.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+ 
   return config;
 });
 
@@ -97,7 +98,7 @@ export const getUserProfile = async () => {
 };
 
 // Get base URLs from environment variables
-const CONTENT_BASE_URL = import.meta.env.VITE_API_URL || 'https://interlineado-backend-fluent-phrases.vercel.app';
+const CONTENT_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Instance for content (readings, phrases)
 export const contentAPI = axios.create({
@@ -117,6 +118,7 @@ export const API = contentAPI;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
     return config;
   });
 
