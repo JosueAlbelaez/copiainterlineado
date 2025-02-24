@@ -10,22 +10,14 @@ console.log('Environment Variables:', {
   CONTENT_BASE_URL
 });
 
-if (!AUTH_BASE_URL) {
-  console.error('VITE_BACKEND_URL is not defined');
-}
-
-if (!CONTENT_BASE_URL) {
-  console.error('VITE_API_URL is not defined');
-}
-
 // Instance for authentication (auth, user management, payments)
 export const authAPI = axios.create({
-  baseURL: '/api',  // Base URL already includes /api
+  baseURL: '',  // Remove baseURL since we're using relative paths
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
   },
-  withCredentials: true // Important for CORS with credentials
+  withCredentials: true
 });
 
 // Configure interceptors with detailed request logging
@@ -34,7 +26,7 @@ authAPI.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  console.log(`🚀 Making ${config.method?.toUpperCase()} request to: ${config.baseURL}${config.url}`, config);
+  console.log(`🚀 Making ${config.method?.toUpperCase()} request to: ${config.url}`, config);
   return config;
 });
 
@@ -55,10 +47,10 @@ authAPI.interceptors.response.use(
   }
 );
 
-// Auth endpoints - Remove /api prefix since it's already in baseURL
+// Auth endpoints
 export const loginUser = async (credentials: { email: string; password: string }) => {
   console.log('Attempting login with credentials:', { ...credentials, password: '[REDACTED]' });
-  const response = await authAPI.post('/auth/signin', credentials);
+  const response = await authAPI.post('/api/auth/signin', credentials);
   return response.data;
 };
 
