@@ -70,8 +70,23 @@ const connectDB = async () => {
 };
 
 // 5. Middlewares
+const allowedOrigins = [
+  'https://completointerlineadofluentphrases.vercel.app',
+  'http://localhost:8080',
+  'http://localhost:5173'
+];
+
 app.use(cors({
-  origin: '*', // Allow all origins temporarily for testing
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, postman)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -79,10 +94,13 @@ app.use(cors({
 
 app.use(express.json());
 
+
 // Test route
 app.get('/api/test', (_req: Request, res: Response) => {
   res.json({ message: 'Backend is working!' });
 });
+
+
 
 // 6. Async handler con tipos seguros
 const asyncHandler = <T = void>(

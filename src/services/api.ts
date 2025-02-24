@@ -24,7 +24,8 @@ export const authAPI = axios.create({
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
-  }
+  },
+  withCredentials: true // Important for CORS with credentials
 });
 
 // Configure interceptors
@@ -33,7 +34,6 @@ authAPI.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
- 
   return config;
 });
 
@@ -112,15 +112,14 @@ export const getUserProfile = async () => {
   return response.data;
 };
 
-
-
 // Instance for content (readings, phrases)
 export const contentAPI = axios.create({
   baseURL: CONTENT_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
-  }
+  },
+  withCredentials: true // Important for CORS with credentials
 });
 
 // For backward compatibility
@@ -132,7 +131,6 @@ export const API = contentAPI;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
     return config;
   });
 
