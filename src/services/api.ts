@@ -1,7 +1,22 @@
 import axios from 'axios';
 
-// Get base URLs from environment variables
-const AUTH_BASE_URL = `${import.meta.env.VITE_BACKEND_URL}`; 
+// Get base URLs from environment variables with better error handling
+const AUTH_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const CONTENT_BASE_URL = import.meta.env.VITE_API_URL;
+
+// Debug logging for environment variables
+console.log('Environment Variables:', {
+  AUTH_BASE_URL,
+  CONTENT_BASE_URL
+});
+
+if (!AUTH_BASE_URL) {
+  console.error('VITE_BACKEND_URL is not defined');
+}
+
+if (!CONTENT_BASE_URL) {
+  console.error('VITE_API_URL is not defined');
+}
 
 // Instance for authentication (auth, user management, payments)
 export const authAPI = axios.create({
@@ -97,8 +112,7 @@ export const getUserProfile = async () => {
   return response.data;
 };
 
-// Get base URLs from environment variables
-const CONTENT_BASE_URL = import.meta.env.VITE_API_URL;
+
 
 // Instance for content (readings, phrases)
 export const contentAPI = axios.create({
