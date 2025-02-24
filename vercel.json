@@ -1,23 +1,23 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/auth/:path*",
-      "destination": "https://completointerlineadofluentphrases.vercel.app/api/auth/:path*"
+      "src": "dist/server.js",
+      "use": "@vercel/node"
     },
     {
-      "source": "/api/payments/:path*",
-      "destination": "https://completointerlineadofluentphrases.vercel.app/api/payments/:path*"
+      "src": "dist/**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/dist/server.js"
     },
     {
-      "source": "/api/:path*",
-      "destination": "https://interlineado-backend-fluent-phrases.vercel.app/api/:path*"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
