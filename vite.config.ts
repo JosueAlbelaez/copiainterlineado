@@ -3,7 +3,8 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const isDev = mode === 'development';
+  const authUrl = env.VITE_BACKEND_URL || 'https://completointerlineadofluentphrases.vercel.app';
+  const contentUrl = env.VITE_API_URL || 'https://interlineado-backend-fluent-phrases.vercel.app';
 
   return {
     plugins: [react({
@@ -17,11 +18,20 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 8080,
       proxy: {
-        '/api': {
-          target: env.VITE_BACKEND_URL || 'http://localhost:5001',
+        '/api/auth': {
+          target: authUrl,
           changeOrigin: true,
           secure: false,
-          rewrite: (path) => path
+        },
+        '/api/payments': {
+          target: authUrl,
+          changeOrigin: true,
+          secure: false,
+        },
+        '/api': {
+          target: contentUrl,
+          changeOrigin: true,
+          secure: false,
         }
       }
     },
