@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 // Get base URLs from environment variables with better error handling
-const AUTH_BASE_URL = import.meta.env.VITE_BACKEND_URL;
-const CONTENT_BASE_URL = import.meta.env.VITE_API_URL;
+const AUTH_BASE_URL = import.meta.env.VITE_BACKEND_URL || '';
+const CONTENT_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 // Debug logging for environment variables
 console.log('Environment Variables:', {
@@ -20,7 +20,7 @@ if (!CONTENT_BASE_URL) {
 
 // Instance for authentication (auth, user management, payments)
 export const authAPI = axios.create({
-  baseURL: AUTH_BASE_URL,
+  baseURL: '/api',  // Cambiado a ruta relativa
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
@@ -28,12 +28,13 @@ export const authAPI = axios.create({
   withCredentials: true // Important for CORS with credentials
 });
 
-// Configure interceptors
+// Configure interceptors with detailed request logging
 authAPI.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  console.log(`🚀 Making ${config.method?.toUpperCase()} request to: ${config.baseURL}${config.url}`, config);
   return config;
 });
 
@@ -43,14 +44,21 @@ authAPI.interceptors.response.use(
     return response;
   },
   error => {
-    console.error(`❌ ${error.config?.method?.toUpperCase()} ${error.config?.url} error:`, error.response?.data || error.message);
+    console.error(`❌ ${error.config?.method?.toUpperCase()} ${error.config?.url} error:`, {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      headers: error.response?.headers,
+      config: error.config
+    });
     return Promise.reject(error);
   }
 );
 
 // Auth endpoints
 export const loginUser = async (credentials: { email: string; password: string }) => {
-  const response = await authAPI.post('/api/auth/signin', credentials);
+  console.log('Attempting login with credentials:', { ...credentials, password: '[REDACTED]' });
+  const response = await authAPI.post('/auth/login', credentials);  // Cambiado a /auth/login
   return response.data;
 };
 
@@ -114,12 +122,12 @@ export const getUserProfile = async () => {
 
 // Instance for content (readings, phrases)
 export const contentAPI = axios.create({
-  baseURL: CONTENT_BASE_URL,
+  baseURL: '/api',  // Cambiado a ruta relativa
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
   },
-  withCredentials: true // Important for CORS with credentials
+  withCredentials: true
 });
 
 // For backward compatibility
@@ -131,6 +139,7 @@ export const API = contentAPI;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    console.log(`🚀 Making ${config.method?.toUpperCase()} request to: ${config.baseURL}${config.url}`, config);
     return config;
   });
 
@@ -140,12 +149,17 @@ export const API = contentAPI;
       return response;
     },
     error => {
-      console.error(`❌ ${error.config?.method?.toUpperCase()} ${error.config?.url} error:`, error.response?.data || error.message);
+      console.error(`❌ ${error.config?.method?.toUpperCase()} ${error.config?.url} error:`, {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        headers: error.response?.headers,
+        config: error.config
+      });
       return Promise.reject(error);
     }
   );
 });
-
 // Reading endpoints (using contentAPI)
 export const getReadings = async () => {
   const response = await contentAPI.get('/api/readings');
