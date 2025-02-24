@@ -71,15 +71,7 @@ const connectDB = async () => {
 
 // 5. Middlewares
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:8080',
-    'https://fluentphrases.org',
-    'https://interlineado-backend-fluent-phrases.vercel.app',
-    'https://backend-interlineado.vercel.app',
-    'https://completointerlineadofluentphrases-c11lddowc.vercel.app/'
-    
-  ],
+  origin: '*', // Allow all origins temporarily for testing
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
