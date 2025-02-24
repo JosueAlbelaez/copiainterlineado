@@ -17,13 +17,7 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 8080,
       proxy: {
-        '/api/auth': {
-          target: authUrl,
-          changeOrigin: true,
-          secure: false,
-          rewrite: (path) => path
-        },
-        '/api/payments': {
+        '/api': {
           target: authUrl,
           changeOrigin: true,
           secure: false,
@@ -34,7 +28,14 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
       sourcemap: true,
-      target: 'esnext'
+      target: 'esnext',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom', 'react-router-dom'],
+          }
+        }
+      }
     }
   };
 });
