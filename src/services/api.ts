@@ -20,7 +20,7 @@ if (!CONTENT_BASE_URL) {
 
 // Instance for authentication (auth, user management, payments)
 export const authAPI = axios.create({
-  baseURL: '/api',  // Cambiado a ruta relativa
+  baseURL: '/api',  // Base URL already includes /api
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
@@ -55,10 +55,10 @@ authAPI.interceptors.response.use(
   }
 );
 
-// Auth endpoints
+// Auth endpoints - Remove /api prefix since it's already in baseURL
 export const loginUser = async (credentials: { email: string; password: string }) => {
   console.log('Attempting login with credentials:', { ...credentials, password: '[REDACTED]' });
-  const response = await authAPI.post('/api/auth/signin', credentials);  // Cambiado a /api/auth/signin
+  const response = await authAPI.post('/auth/signin', credentials);
   return response.data;
 };
 
@@ -68,42 +68,42 @@ export const registerUser = async (userData: {
   email: string;
   password: string;
 }) => {
-  const response = await authAPI.post('/api/auth/signup', userData);
+  const response = await authAPI.post('/auth/signup', userData);
   return response.data;
 };
 
 export const verifyToken = async () => {
-  const response = await authAPI.get('/api/auth/me');
+  const response = await authAPI.get('/auth/me');
   return response.data;
 };
 
 export const forgotPassword = async (email: string) => {
-  const response = await authAPI.post('/api/auth/forgot-password', { email });
+  const response = await authAPI.post('/auth/forgot-password', { email });
   return response.data;
 };
 
 export const resetPassword = async (token: string, password: string) => {
-  const response = await authAPI.post('/api/auth/reset-password', { token, password });
+  const response = await authAPI.post('/auth/reset-password', { token, password });
   return response.data;
 };
 
 export const verifyEmail = async (token: string) => {
-  const response = await authAPI.post('/api/auth/verify-email', { token });
+  const response = await authAPI.post('/auth/verify-email', { token });
   return response.data;
 };
 
-// Payment endpoints
+// Payment endpoints - Remove /api prefix since it's already in baseURL
 export const createPreference = async (data: { plan: string }) => {
-  const response = await authAPI.post('/api/payments/create-preference', data);
+  const response = await authAPI.post('/payments/create-preference', data);
   return response.data;
 };
 
 export const verifySubscription = async () => {
-  const response = await authAPI.get('/api/payments/verify-subscription');
+  const response = await authAPI.get('/payments/verify-subscription');
   return response.data;
 };
 
-// User endpoints
+// User endpoints - Remove /api prefix since it's already in baseURL
 export const updateUserProfile = async (data: {
   firstName?: string;
   lastName?: string;
@@ -111,18 +111,18 @@ export const updateUserProfile = async (data: {
   currentPassword?: string;
   newPassword?: string;
 }) => {
-  const response = await authAPI.put('/api/auth/profile', data);
+  const response = await authAPI.put('/auth/profile', data);
   return response.data;
 };
 
 export const getUserProfile = async () => {
-  const response = await authAPI.get('/api/auth/profile');
+  const response = await authAPI.get('/auth/profile');
   return response.data;
 };
 
 // Instance for content (readings, phrases)
 export const contentAPI = axios.create({
-  baseURL: '/api',  // Cambiado a ruta relativa
+  baseURL: '/api',  // Base URL already includes /api
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
@@ -160,26 +160,27 @@ export const API = contentAPI;
     }
   );
 });
-// Reading endpoints (using contentAPI)
+
+// Reading endpoints - Remove /api prefix since it's already in baseURL
 export const getReadings = async () => {
-  const response = await contentAPI.get('/api/readings');
+  const response = await contentAPI.get('/readings');
   return response.data;
 };
 
 export const getReadingById = async (id: string) => {
-  const response = await contentAPI.get(`/api/readings/${id}`);
+  const response = await contentAPI.get(`/readings/${id}`);
   return response.data;
 };
 
-// Phrases endpoints (using contentAPI)
+// Phrases endpoints - Remove /api prefix since it's already in baseURL
 export const getPhrases = async (language: string, category?: string) => {
-  const response = await contentAPI.get('/api/phrases', {
+  const response = await contentAPI.get('/phrases', {
     params: { language, category }
   });
   return response.data;
 };
 
 export const incrementPhraseCount = async () => {
-  const response = await contentAPI.post('/api/phrases/increment');
+  const response = await contentAPI.post('/phrases/increment');
   return response.data;
 };
