@@ -2,7 +2,7 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "target": "ES2022",
-    "lib": ["ES2022", "DOM"],
+    "lib": ["ES2022"],
     "module": "CommonJS",
     "skipLibCheck": true,
     "moduleResolution": "Node",
@@ -13,7 +13,7 @@
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
     "outDir": "./dist",
-    "rootDir": "./",
+    "rootDir": "./src/server",
     "sourceMap": true,
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "types": ["node"],
@@ -26,14 +26,11 @@
     "allowJs": true
   },
   "include": [
-    "vite.config.ts",
-    "server.ts",
-    "src/**/*"
+    "src/server/**/*"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "**/*.spec.ts",
-    "src/client"
+    "**/*.spec.ts"
   ]
 }
