@@ -13,7 +13,7 @@
     "noFallthroughCasesInSwitch": true,
     "resolveJsonModule": true,
     "outDir": "./dist",
-    "rootDir": "./src/server",
+    "rootDir": "./src",
     "sourceMap": true,
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "types": ["node"],
