@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "start": "node dist/server.js",
     "dev": "concurrently \"vite\" \"tsx watch src/server.ts\"",
     "build": "tsc && vite build",
      "build:dev": "vite build --mode development",
