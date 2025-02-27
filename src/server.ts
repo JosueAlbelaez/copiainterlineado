@@ -230,7 +230,7 @@ app.get('/api/auth/me', authenticateToken, asyncHandler(async (req: Request, res
 }));
 
 // Ruta para obtener lecturas
-app.get('/api/readings', authenticateToken, asyncHandler(async (req: Request, res: Response) => {
+app.get('/api/readings', authenticateToken, asyncHandler(async (_req: Request, res: Response) => {
   try {
     const readings = await Reading.find();
     res.json(readings);

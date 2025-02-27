@@ -3,14 +3,14 @@
     "esModuleInterop": true,
     "target": "ES2022",
     "useDefineForClassFields": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": ["ES2022", "dom", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "moduleResolution": "bundler",
+    "moduleResolution": "bundler", 
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
-    "noEmit": true,
+    "noEmit": true, 
     "jsx": "react-jsx",
     "strict": true,
     "noUnusedLocals": true,
@@ -20,11 +20,13 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
+    
+
     "baseUrl": "./src",
     "paths": {
       "@components/*": ["components/*"]
     }
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "**/*.spec.ts", "server"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "**/*.spec.ts", "dist", "server"]
 }

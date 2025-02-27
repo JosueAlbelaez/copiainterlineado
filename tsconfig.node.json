@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
-    "target": "ES2022",
+    "target": "ES2022", 
     "lib": ["ES2022"],
-    "module": "CommonJS",
+    "module": "Node16",
+     "jsx": "react",
     "skipLibCheck": true,
-    "moduleResolution": "Node",
+    "moduleResolution": "Node16",
     "isolatedModules": true,
     "strict": true,
     "noUnusedLocals": true,
@@ -14,23 +15,22 @@
     "resolveJsonModule": true,
     "outDir": "./dist",
     "rootDir": "./src",
+    
     "sourceMap": true,
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "types": ["node"],
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["src/*"]
     },
-    "allowJs": true
+    "allowJs": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "preserveSymlinks": true,
+    
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.spec.ts"
-  ]
+  "include": ["src/**/*.ts", "src/types/**/*.d.ts"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts"]
 }
